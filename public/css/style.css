@@ -13,7 +13,7 @@
             color: #333;
         }
 
-        /* Navbar */
+        
         .navbar-def {
             background-color: var(--defense-dark) !important;
             border-bottom: 2px solid var(--defense-gold);
@@ -122,7 +122,7 @@
             color: var(--defense-dark);
         }
 
-        /* Sections */
+    
         .section-title {
             position: relative;
             margin-bottom: 50px;
@@ -175,7 +175,7 @@
             margin-bottom: 20px;
         }
 
-        /* Carousel Section */
+        
         .carousel-section {
             padding: 80px 0;
             background-color: var(--defense-dark);
@@ -350,13 +350,13 @@
 
 
 
-        /* Transition pour les champs dynamiques */
+    
 .role-fields {
     transition: all 0.3s ease;
     overflow: hidden;
 }
 
-/* Animation pour les nouveaux champs */
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -366,7 +366,7 @@
     animation: fadeIn 0.5s ease forwards;
 }
 
-/* Style pour les onglets actifs */
+
 .auth-tab.active {
     background: var(--defense-accent);
     color: white;
