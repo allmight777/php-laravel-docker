@@ -31,6 +31,6 @@ class register extends Controller
 
     public function registerValidation()
     {
-        // À implémenter
+        
     }
 }
