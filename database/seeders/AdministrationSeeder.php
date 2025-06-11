@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Administrateur;
 
 class AdministrationSeeder extends Seeder
 {
@@ -12,15 +12,8 @@ class AdministrationSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('administrateurs')->insert([
-            [
-                'nom' => 'admin',
-                'prenom' => 'admin',
-                'telephone' => '0100000000',
-                'email' => 'admin@example.com',
-                'photo' => 'url',
-                'mot_de_passe' => 'admin123',
-            ]
+        Administrateur::create([
+            'user_id' => 1,
         ]);
     }
 }

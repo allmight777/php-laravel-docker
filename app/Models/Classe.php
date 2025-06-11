@@ -9,22 +9,21 @@ class Classe extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nom', 'niveau', 'serie'];
+    protected $fillable = ['nom', 'code'];
 
-    public function eleves()
-    {
-        return $this->hasMany(Eleve::class);
-    }
-
-    public function professeurs()
-    {
-        return $this->belongsToMany(Professeur::class, 'professeur_classe');
-    }
-
+    /**
+     * Relation
+     */
     public function matieres()
     {
-        return $this->belongsToMany(Matiere::class, 'classe_matiere')
-                    ->withPivot('coefficient')
-                    ->withTimestamps();
+        return $this->belongsToMany(
+            Matiere::class,
+            'classe_matiere_professeur',
+            'classe_id',
+            'matiere_id'
+        )
+        ->withPivot('professeur_id', 'coefficient')
+        ->withTimestamps()
+        ->distinct();
     }
 }

@@ -68,9 +68,6 @@
             overflow: hidden;
         }
 
-
-
-
         .hero-content {
             z-index: 2;
         }
@@ -175,15 +172,13 @@
             margin-bottom: 20px;
         }
 
-        /* Carousel Section */
         .carousel-section {
-            padding: 80px 0;
+            padding: 40px 0;
             background-color: var(--defense-dark);
         }
 
         .carousel-img {
-            height: 500px;
-            width: 100px;
+            height: 400px;
             object-fit: cover;
             border-radius: 10px;
             border: 3px solid var(--defense-gold);
@@ -191,7 +186,12 @@
 
         .carousel-control-prev,
         .carousel-control-next {
-            width: 5%;
+            width: 10%;
+        }
+
+
+        #contact:hover {
+            background-color: #e1e8f3;
         }
 
         /* Login/Register Section */
@@ -259,6 +259,8 @@
             color: white;
             padding: 60px 0 20px;
             position: relative;
+            margin-top: 0px;
+            padding-top: 0px;
         }
 
         .footer-logo {
@@ -333,6 +335,7 @@
             text-align: center;
         }
 
+
         /* Animations */
         .animate-delay-1 {
             animation-delay: 0.3s;
@@ -347,28 +350,151 @@
         }
 
 
+        .role-fields {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .new-field {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .auth-tab.active {
+            background: var(--defense-accent);
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
 
+        .auth-tab {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
 
-        /* Transition pour les champs dynamiques */
-.role-fields {
-    transition: all 0.3s ease;
-    overflow: hidden;
-}
+        .auth-tab.active {
+            background-color: #0d6efd;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
-/* Animation pour les nouveaux champs */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+        .auth-tab:hover:not(.active) {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
 
-.new-field {
-    animation: fadeIn 0.5s ease forwards;
-}
+        .class-selection {
+            border-left: 4px solid #0d6efd;
+            padding-left: 15px;
+            transition: all 0.3s ease;
+        }
 
-/* Style pour les onglets actifs */
-.auth-tab.active {
-    background: var(--defense-accent);
-    color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+        .class-selection:hover {
+            border-left-color: #0dcaf0;
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+
+        .matiere-select {
+            height: auto;
+            min-height: 100px;
+        }
+
+        .animate__fadeIn {
+            animation: fadeIn 0.5s;
+        }
+
+        .animate__fadeOut {
+            animation: fadeOut 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+        }
+
+
+        /* Style général pour l'espace professeur */
+        .professor-dashboard {
+            min-height: 100vh;
+        }
+
+        .animate-delay-1 {
+            animation-delay: 0.3s;
+        }
+
+        .animate-delay-2 {
+            animation-delay: 0.6s;
+        }
+
+        .dashboard-card {
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background-color: #e2e7ee;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            background-color: #fdfada;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table th {
+            white-space: nowrap;
+            background-color: #f8f9fa;
+        }
+
+        .note-input {
+            max-width: 80px;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: #3490dc;
+            border-color: #3490dc;
+        }
+
+        .btn-primary:hover {
+            background-color: #227dc7;
+            border-color: #227dc7;
+        }

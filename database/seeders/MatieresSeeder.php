@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Matiere;
 
 class MatieresSeeder extends Seeder
 {
@@ -12,31 +12,29 @@ class MatieresSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('matieres')->insert([
-            [
-                'nom' => 'Maths',
-                'code' => 'MT'
-            ],
+        Matiere::create([
+            'nom' => 'Maths',
+            'code' => 'MT',
+        ]);
 
-            [
-                'nom' => 'Français',
-                'code' => 'FA'
-            ],
+        Matiere::create([
+            'nom' => 'Français',
+            'code' => 'FA',
+        ]);
 
-            [
-                'nom' => 'Physique',
-                'code' => 'PH'
-            ],
+        Matiere::create([
+            'nom' => 'Physique',
+            'code' => 'PH',
+        ]);
 
-            [
-                'nom' => 'Anglais',
-                'code' => 'AG'
-            ],
+        Matiere::create([
+            'nom' => 'Anglais',
+            'code' => 'AG',
+        ]);
 
-            [
-                'nom' => 'Sport',
-                'code' => 'EPS'
-            ],
+        Matiere::create([
+            'nom' => 'Sport',
+            'code' => 'EPS',
         ]);
     }
 }

@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Classe;
 
 class ClassesSeeder extends Seeder
 {
@@ -12,36 +12,29 @@ class ClassesSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('classes')->insert([
-            [
-                'nom' => 'Classe',
-                'niveau' => '1',
-                'serie' => 'D',
-            ],
+        Classe::create([
+            'nom' => 'Classe A',
+            'serie' => 'D',
+        ]);
 
-            [
-                'nom' => 'Classe',
-                'niveau' => '2',
-                'serie' => 'AB',
-            ],
+        Classe::create([
+            'nom' => 'Classe B',
+            'serie' => 'AB',
+        ]);
 
-            [
-                'nom' => 'Classe',
-                'niveau' => '3',
-                'serie' => '',
-            ],
+        Classe::create([
+            'nom' => 'Classe C',
+            'serie' => '',
+        ]);
 
-            [
-                'nom' => 'Classe',
-                'niveau' => '4',
-                'serie' => '',
-            ],
+        Classe::create([
+            'nom' => 'Classe D',
+            'serie' => '',
+        ]);
 
-            [
-                'nom' => 'Classe',
-                'niveau' => '5',
-                'serie' => '',
-            ],
+        Classe::create([
+            'nom' => 'Classe E',
+            'serie' => '',
         ]);
     }
 }
