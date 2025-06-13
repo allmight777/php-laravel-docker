@@ -6,10 +6,12 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfesseurController;
+use App\Http\Controllers\BulletinController;
 use Illuminate\Support\Facades\Route;
 
 // Page d'accueil
 Route::get('/', [HomeController::class, 'index'])->name('index');
+
 
 // Authentification
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -59,4 +61,17 @@ Route::middleware('auth')->group(function () {
         Route::post('/notes/enregistrer', [ProfesseurController::class, 'enregistrerNotes'])->name('professeur.notes.enregistrer');
     });
 
+    //eleves
+    Route::get('bulletin', [ProfesseurController::class, 'dashboar'])->name('bulletin.index');
+    //Route-bouton telechargement
+    //Route::get('/download-file', [DownloadController::class, 'download'])->name('download.file');
+    Route::get('/download-file', function () {
+    return Storage::download('public/files/file1.txt');
+})->name('download.file');
 });
+//
+//Route::get('/bulletin',[BulletinController])->name('bulletin');
+
+//Réinstallisation des mots de passe 
+Auth::routes();
+

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<br><br><br><br><br><br><br>
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -22,6 +23,7 @@
 
                             <div class="col-md-6">
                                 <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+                                
 
                                 @error('email')
                                     <span class="invalid-feedback" role="alert">
@@ -44,4 +46,5 @@
         </div>
     </div>
 </div>
+<br><br><br>
 @endsection
