@@ -22,9 +22,9 @@ class Matiere extends Model
             'matiere_id',
             'classe_id'
         )
-        ->distinct()
-        ->withPivot('coefficient')
-        ->withTimestamps();
+            ->distinct()
+            ->withPivot('coefficient')
+            ->withTimestamps();
     }
 
     /**
@@ -33,5 +33,11 @@ class Matiere extends Model
     public function classeMatiereProfesseur()
     {
         return $this->hasMany(ClasseMatiereProfesseur::class);
+    }
+
+    //Non doublon de classe
+    public function affectations()
+    {
+        return $this->hasMany(\App\Models\Affectation::class);
     }
 }

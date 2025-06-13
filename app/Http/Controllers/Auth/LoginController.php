@@ -74,7 +74,7 @@ class LoginController extends Controller
         } elseif ($user->professeur) {
             return redirect()->route('professeur.dashboard');
         }
-        
+
         // Par défaut pour les élèves
         return redirect()->intended($this->redirectPath());
 

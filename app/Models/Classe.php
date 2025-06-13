@@ -26,4 +26,6 @@ class Classe extends Model
         ->withTimestamps()
         ->distinct();
     }
+
+    
 }

@@ -65,14 +65,16 @@
                                     <p>{{ __('Pas encore de compte?') }} <a
                                             href="{{ route('register') }}">{{ __('Inscrivez-vous ici') }}</a></p>
                                 </div>
-
-                                @if (Route::has('password.request'))
-                                    <div class="text-center">
-                                        <a href="{{ route('password.request') }}">
-                                            {{ __('Forgot Your Password?') }}
-                                        </a>
+                                <center>
+                                    <div class="flex items-center justify-end mt-4">
+                                        @if (Route::has('password.request'))
+                                            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                                href="{{ route('password.request') }}">
+                                                {{ __('Forgot your password?') }}
+                                            </a>
+                                        @endif
                                     </div>
-                                @endif
+                                </center>
                             </form>
                         </div>
                     </div>

@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\AccountApproved;
 use App\Mail\AccountRejected;
+use App\Models\Affectation;
+use App\Models\AnneeAcademique;
+use App\Models\Classe;
 use App\Models\Professeur;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -149,5 +152,95 @@ class AdminController extends Controller
     private function fullName(User $user)
     {
         return trim("{$user->prenom} {$user->nom}");
+    }
+
+    // Gestion des affectations professeurs/classes/matières par année scolaires
+    public function affectation($id)
+    {
+        $professeur = User::findOrFail($id);
+        $annees = AnneeAcademique::all();
+       $classes = Classe::with(['matieres.affectations'])->get();
+
+
+        return view('admin.professeurs.affectation', compact('professeur', 'annees', 'classes'));
+    }
+
+    public function storeAffectation(Request $request, $id)
+    {
+        $professeur = User::findOrFail($id);
+        $annee_id = $request->annee_scolaire_id;
+        $affectations = $request->affectations;
+
+        foreach ($affectations as $combo) {
+            [$classe_id, $matiere_id] = explode('-', $combo);
+            Affectation::create([
+                'professeur_id' => $professeur->id,
+                'classe_id' => $classe_id,
+                'matiere_id' => $matiere_id,
+                'annee_academique_id' => $annee_id,
+            ]);
+        }
+
+        return redirect()->route('professeurs.index')->with('success', 'Affectations enregistrées');
+    }
+
+    // Liste des années scolaires
+    public function anneesScolaires()
+    {
+        $annees = AnneeAcademique::all();
+
+        return view('admin.anneesScolaires.index', compact('annees'));
+    }
+
+    // Affichage formulaire année scolaire
+    public function createAnnee()
+    {
+        return view('admin.anneesScolaires.create');
+    }
+
+    // Enregistrer nouvelle année scolaire
+    public function storeAnnee(Request $request)
+    {
+        $request->validate([
+            'libelle' => 'required|string|max:255|unique:annee_academique,libelle',
+        ]);
+
+        AnneeAcademique::create([
+            'libelle' => $request->libelle,
+        ]);
+
+        return redirect()->route('admin.annees.index')->with('success', 'Année scolaire créée avec succès.');
+    }
+
+    // Formulaire édition année scolaire
+    public function editAnnee($id)
+    {
+        $annee = AnneeAcademique::findOrFail($id);
+
+        return view('admin.anneesScolaires.edit', compact('annee'));
+    }
+
+    // Mise à jour année scolaire
+    public function updateAnnee(Request $request, $id)
+    {
+        $request->validate([
+            'libelle' => 'required|string|max:255|unique:annee_academique,libelle,'.$id,
+        ]);
+
+        $annee = AnneeAcademique::findOrFail($id);
+        $annee->libelle = $request->libelle;
+        $annee->save();
+
+        return redirect()->route('admin.annees.index')->with('success', 'Année scolaire mise à jour avec succès.');
+    }
+
+    // Supprimer annee
+
+    public function destroyAnnee($id)
+    {
+        $annee = AnneeAcademique::findOrFail($id);
+        $annee->delete();
+
+        return redirect()->route('admin.annees.index')->with('success', 'Année scolaire supprimée avec succès.');
     }
 }

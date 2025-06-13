@@ -11,7 +11,7 @@
                             <h3><i class="fas fa-user-plus me-2"></i> Créer un compte</h3>
                             <p class="mb-0">Sélectionnez votre profil pour commencer l'inscription</p>
                         </div>
-            
+
                         <div class="auth-body">
                             <div class="d-flex justify-content-center mb-4">
                                 <button type="button"
@@ -414,7 +414,6 @@
 
                     setTimeout(() => {
                         classSelection.remove();
-
 
                         document.querySelectorAll('.class-selection').forEach((selection,
                             index) => {
