@@ -97,7 +97,7 @@ class ProfesseurController extends Controller
                 ->get();
 
             foreach ($notes as $note) {
-                $notesExistantes[$note->eleve_id.'_'.$note->nom_evaluation] = $note;
+                $notesExistantes[$note->eleve_id . '_' . $note->nom_evaluation] = $note;
             }
         }
 
@@ -113,7 +113,6 @@ class ProfesseurController extends Controller
         ));
     }
 
-    // Methode pour saisir les notes et enregistrement dans bulletin
     public function saisirNotes(Request $request)
     {
         $request->validate([
@@ -131,7 +130,6 @@ class ProfesseurController extends Controller
                 ->value('coefficient') ?? 1;
 
             foreach ($request->notes as $eleveId => $notes) {
-                // Met à jour / crée les notes envoyées
                 foreach ($notes as $type => $valeur) {
                     if ($valeur !== null && $valeur !== '' && is_numeric($valeur)) {
                         $valeur = floatval($valeur);
@@ -153,7 +151,6 @@ class ProfesseurController extends Controller
                     }
                 }
 
-                // Récupère toutes les notes enregistrées pour cet élève/matière/période
                 $notesEnregistrees = Note::where('eleve_id', $eleveId)
                     ->where('matiere_id', $request->matiere_id)
                     ->where('periode_id', $request->periode_id)
@@ -168,7 +165,6 @@ class ProfesseurController extends Controller
                 $interroMoy = $interroCount > 0 ? array_sum($interroNotes) / $interroCount : 0;
                 $devoirMoy = $devoirCount > 0 ? array_sum($devoirNotes) : 0;
 
-                // Méthode de calcul
                 if ($interroCount > 0 && $devoirCount > 0) {
                     $moyenne = ($interroMoy + $devoirMoy) / 3;
                 } elseif ($interroCount > 0 && $devoirCount == 0) {
@@ -179,10 +175,8 @@ class ProfesseurController extends Controller
                     $moyenne = 0;
                 }
 
-                // Avec coefficient
                 $moyenneCoefficient = $moyenne * $coefficient;
 
-                // Mise à jour du bulletin
                 Bulletin::updateOrCreate(
                     [
                         'eleve_id' => $eleveId,
@@ -199,7 +193,6 @@ class ProfesseurController extends Controller
                 );
             }
 
-            // Mise à jour des rangs après traitement de tous les élèves
             $this->updateRanks($request->periode_id, $request->matiere_id);
             $this->calculateAnnualAverages($request->classe_id, $request->annee_academique_id);
         });
@@ -245,7 +238,51 @@ class ProfesseurController extends Controller
 
             if ($periodeCount > 0) {
                 $moyenneAnnuelle = $totalMoyenne / $periodeCount;
+                // Stockage à venir si besoin
             }
         }
+    }
+
+    public function dashboar()
+    {
+        $classes = Classe::all();
+        $annees = AnneeAcademique::all();
+        return view('bulletin.index');
+    }
+
+    public function showBulletin()
+    {
+        $eleve = auth()->user();
+
+        if (!$eleve instanceof \App\Models\Eleve) {
+            abort(403, 'Accès non autorisé.');
+        }
+
+        $notes = Note::with('matieres')
+            ->where('eleve_id', $eleve->id)
+            ->get()
+            ->groupBy('matiere.nom');
+
+        $moyenneGenerale = $this->calculerMoyenneGenerale($notes);
+
+        return view('bulletin.show', [
+            'eleve' => $eleve,
+            'notesParMatiere' => $notes,
+            'moyenneGenerale' => $moyenneGenerale
+        ]);
+    }
+
+    private function calculerMoyenneGenerale($notesParMatiere)
+    {
+        $total = 0;
+        $count = 0;
+
+        foreach ($notesParMatiere as $matiere => $notes) {
+            $moyenneMatiere = $notes->avg('valeur');
+            $total += $moyenneMatiere;
+            $count++;
+        }
+
+        return $count > 0 ? round($total / $count, 2) : 0;
     }
 }

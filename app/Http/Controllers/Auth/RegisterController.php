@@ -111,4 +111,6 @@ class RegisterController extends Controller
     {
         return $this->redirectTo ?? '/login';
     }
+
+  
 }
