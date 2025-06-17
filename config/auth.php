@@ -39,6 +39,7 @@ return [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
+            //'provider' => 'eleves', 
         ],
     ],
 
@@ -112,4 +113,12 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*'providers' => [
+    'eleves' => [ // Nouveau provider pour les élèves
+        'driver' => 'eloquent',
+        'model' => App\Models\Eleve::class,
+    ],
+ ],*/
+
 ];
+

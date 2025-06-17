@@ -6,6 +6,7 @@ use App\Models\Classe;
 use App\Models\ClasseMatiereProfesseur;
 use App\Models\Eleve;
 use App\Models\Note;
+use App\Models\AnneeAcademique;
 use App\Models\Professeur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,31 +42,31 @@ class ProfesseurController extends Controller
 
     public function mesClasses()
     {
-
+         // Récupération de l'ID du professeur connecté
         $professeurId = Auth::user()->professeur->id;
-
+        //Récupération des classes et matières associées au professeur
         $classes = ClasseMatiereProfesseur::with(['classe', 'matiere'])
             ->where('professeur_id', $professeurId)
             ->get();
 
         return view('professeur.classes', compact('classes'));
     }
-
+     //Affiche les eleves d'une classe specifique
     public function elevesParClasse(Classe $classe)
     {
-
+         // Vérification que le professeur est bien affecté à cette classe
         $professeurId = Auth::user()->professeur->id;
 
         $affectation = ClasseMatiereProfesseur::where('classe_id', $classe->id)
             ->where('professeur_id', $professeurId)
-            ->firstOrFail();
-
+            ->firstOrFail();//Genere une erreur 404 si non
+        // Récupération des élèves de la classe avec leurs infos utilisateur
         $eleves = Eleve::with('user')
             ->where('classe_id', $classe->id)
             ->get();
-
+         // Récupération de la matière enseignée
         $matiere = $affectation->matiere;
-
+        // Retourne la vue avec les données
         return view('professeur.eleves', compact('classe', 'eleves', 'matiere'));
     }
 
@@ -122,5 +123,55 @@ class ProfesseurController extends Controller
         }
 
         return redirect()->back()->with('success', 'Notes enregistrées avec succès!');
+    }
+
+    public function dashboar()
+
+    {
+         $classes = Classe::all();
+        $annees = AnneeAcademique::all();
+        return view('bulletin.index');
+    }
+    public function showBulletin()
+    {
+       //voir l'eleve actu connecté
+        $eleve = auth()->user();
+        
+        // Double vérification que c'est bien un élève
+        if (!$eleve instanceof \App\Models\Eleve) {
+            abort(403, 'Accès non autorisé.');
+        }
+        
+        // les notes avec les matières associées
+        $notes = Note::with('matieres')
+                    ->where('eleve_id', $eleve->id)
+                    ->get()
+                    ->groupBy('matiere.nom');
+        
+        // Calcul de la moyenne générale
+        $moyenneGenerale = $this->calculerMoyenneGenerale($notes);
+        
+        return view('bulletin.show', [
+            'eleve' => $eleve,
+            'notesParMatiere' => $notes,
+            'moyenneGenerale' => $moyenneGenerale
+        ]);
+    }
+    
+    
+    // Calcule la moyenne générale
+    
+    private function calculerMoyenneGenerale($notesParMatiere)
+    {
+        $total = 0;
+        $count = 0;
+        
+        foreach ($notesParMatiere as $matiere => $notes) {
+            $moyenneMatiere = $notes->avg('valeur');
+            $total += $moyenneMatiere;
+            $count++;
+        }
+        
+        return $count > 0 ? round($total / $count, 2) : 0;
     }
 }
