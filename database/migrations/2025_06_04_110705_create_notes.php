@@ -8,19 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('bulletins', function (Blueprint $table) {
+        Schema::create('notes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('eleve_id')->constrained('eleves');
-            $table->decimal('total', 5, 2);
-            $table->integer('rang');
+            $table->foreignId('matiere_id')->constrained();
+            $table->decimal('valeur', 5, 2);
+            $table->enum('type_evaluation', ['interrogation', 'devoir'])->default('interrogation');
             $table->string('periode', 50);
-            $table->boolean('statut')->default(false);
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('bulletins');
+        Schema::dropIfExists('notes');
     }
 };

@@ -1,38 +1,77 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ClasseController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfesseurController;
-use App\Http\Controllers\register;
 use Illuminate\Support\Facades\Route;
 
+// Page d'accueil
+Route::get('/', [HomeController::class, 'index'])->name('index');
 
-// Route-acceuil
-Route::get('/', [register::class, 'index'])->name('index');
+// Authentification
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('login', [LoginController::class, 'login']);
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
-// Register-Route
-Route::get('/register', [register::class, 'register'])->name('register');
-Route::post('/register', [register::class, 'registerValidation'])->name('register');
+Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('register', [RegisterController::class, 'register']);
 
-// Login-Route
-Route::get('/login', [register::class, 'login'])->name('login');
+Route::middleware('auth')->group(function () {
 
-Route::resource('classes', ClasseController::class);
-Route::resource('professeurs', ProfesseurController::class);
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-// Route pour gérer l'affectation des classes aux professeurs
-Route::post('/professeurs/{professeur}/affecter-classes', [ProfesseurController::class, 'affecterClasses'])
-    ->name('professeurs.affecter-classes');
+    // Routes Admin
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-use App\Models\Classe;
+        // Gestion des utilisateurs
+        Route::get('/user/{id}', [AdminController::class, 'showUser'])->name('users.show');
+        Route::post('/user/{id}/approve', [AdminController::class, 'approveUser'])->name('users.approve');
+        Route::post('/user/{id}/deactivate', [AdminController::class, 'deactivateUser'])->name('users.deactivate');
+        Route::post('/user/{id}/reject', [AdminController::class, 'rejectUser'])->name('users.reject');
 
-// Récupérer toutes les classes
-$classes = Classe::all();
+        // Approbations
+        Route::get('/approvals', [AdminController::class, 'pendingUsers'])->name('users.pending');
 
-// Pagination
-$classes = Classe::paginate(10);
+        // Liste des utilisateurs actifs
+        Route::get('/active-users', [AdminController::class, 'activeUsers'])->name('users.active');
 
-// Filtrer par niveau
-$classesSecondaires = Classe::where('niveau', 'secondaire')->get();
+        // Années scolaires
+        Route::get('annees-scolaires', [AdminController::class, 'anneesScolaires'])->name('annees.index');
+        Route::get('annees-scolaires/create', [AdminController::class, 'createAnnee'])->name('annees.create');
+        Route::post('annees-scolaires', [AdminController::class, 'storeAnnee'])->name('annees.store');
+        Route::get('annees-scolaires/{id}/edit', [AdminController::class, 'editAnnee'])->name('annees.edit');
+        Route::put('annees-scolaires/{id}', [AdminController::class, 'updateAnnee'])->name('annees.update');
+       Route::delete('annees-scolaires/{id}', [AdminController::class, 'destroyAnnee'])->name('annees.delete');
 
-// Relations
-$classesWithMatieres = Classe::with('matieres')->get();
+
+
+        // Affectation classes/matières par année scolaire
+        Route::get('professeurs/{professeur}/affectation', [AdminController::class, 'affectation'])->name('professeurs.affectation');
+        Route::post('professeurs/{professeur}/affectation', [AdminController::class, 'storeAffectation'])->name('professeurs.affectation.store');
+    });
+
+    //Classes et Professeurs
+    Route::resource('classes', ClasseController::class);
+    Route::resource('professeurs', ProfesseurController::class);
+
+    // Affecter des classes à un professeur
+    Route::post('/professeurs/{professeur}/affecter-classes', [ProfesseurController::class, 'affecterClasses'])->name('professeurs.affecter-classes');
+
+    // Matières d'une classe
+    Route::get('/api/classes/{classe}/matieres', [ClasseController::class, 'getMatieres'])->name('classes.matieres');
+
+    // Routes Professeur
+    Route::prefix('professeur')->name('professeur.')->group(function () {
+        Route::get('/dashboard', [ProfesseurController::class, 'dashboard'])->name('dashboard');
+        Route::get('/classes', [ProfesseurController::class, 'mesClasses'])->name('classes');
+        Route::get('/classe/{classe}/eleves', [ProfesseurController::class, 'elevesParClasse'])->name('classe.eleves');
+        Route::post('/notes/enregistrer', [ProfesseurController::class, 'enregistrerNotes'])->name('notes.enregistrer');
+    });
+});
+
+// Réinitialisation des mots de passe
+Auth::routes();

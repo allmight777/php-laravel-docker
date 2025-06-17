@@ -7,16 +7,6 @@ use Illuminate\Http\Request;
 
 class ClasseController extends Controller
 {
-    public function index()
-    {
-        $classes = Classe::all();
-        return view('classes.create', compact('classes'));
-    }
-
-    public function create()
-    {
-        return view('classes.create');
-    }
 
     public function store(Request $request)
     {
@@ -30,6 +20,16 @@ class ClasseController extends Controller
 
         return redirect()->route('classes.index')
                          ->with('success', 'Classe créée avec succès');
+    }
+
+      public function getMatieres(Classe $classe)
+    {
+        $matieres = Matiere::whereHas('classeMatiereProfesseur', function($query) use ($classe) {
+            $query->where('classe_id', $classe->id)
+                  ->whereNull('professeur_id');
+        })->get(['id', 'nom', 'code']);
+
+        return response()->json($matieres);
     }
 
 }

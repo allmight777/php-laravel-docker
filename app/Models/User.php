@@ -2,47 +2,84 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+     use HasFactory, Notifiable, SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-        'name',
+        'nom',
+        'prenom',
+        'telephone',
+        'photo',
         'email',
+        'date_de_naissance',
         'password',
+        'is_active',
+        'is_admin'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'date_de_naissance' => 'date',
+        'is_active' => 'boolean',
+        'is_admin' => 'boolean'
+    ];
+
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Relation avec Administrateur
      */
-    protected function casts(): array
+    public function administrateur()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasOne(Administrateur::class);
+    }
+
+    /**
+     * Relation avec Eleve
+     */
+    public function eleve()
+    {
+        return $this->hasOne(Eleve::class);
+    }
+
+    /**
+     * Relation avec Professeur
+     */
+    public function professeur()
+    {
+        return $this->hasOne(Professeur::class);
+    }
+
+    /**
+     * Vérifie si l'utilisateur est admin
+     */
+    public function isAdmin()
+    {
+        return $this->administrateur !== null;
+    }
+
+    /**
+     * Vérifie si le compte est actif
+     */
+    public function isActive()
+    {
+        return $this->is_active;
+    }
+
+    /**
+     * Retourne nom et prenom
+     */
+    public function getFullName()
+    {
+        return trim($this->prenom.' '.$this->nom);
     }
 }

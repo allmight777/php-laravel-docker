@@ -1,0 +1,246 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Mail\AccountApproved;
+use App\Mail\AccountRejected;
+use App\Models\Affectation;
+use App\Models\AnneeAcademique;
+use App\Models\Classe;
+use App\Models\Professeur;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+
+class AdminController extends Controller
+{
+    /**
+     * Vérification admin
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+
+        $this->middleware(function ($request, $next) {
+            if (! auth()->user()->is_admin) {
+                abort(403, 'Accès réservé aux administrateurs');
+            }
+
+            return $next($request);
+        });
+    }
+
+    //
+    public function dashboard()
+    {
+        $pendingUsers = User::where('is_active', false)
+            ->with(['eleve.classe', 'eleve.anneeAcademique', 'professeur.matieres'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        $counts = [
+            'pending' => User::where('is_active', false)->count(),
+            'active' => User::where('is_active', true)->count(),
+            'teachers' => Professeur::count(),
+        ];
+
+        return view('admin.dashboard', compact('pendingUsers', 'counts'));
+    }
+
+    /**
+     * Liste des utilisateurs en attente
+     */
+    public function pendingUsers()
+    {
+        $users = User::where('is_active', false)
+            ->with(['eleve.classe', 'eleve.anneeAcademique', 'professeur.matieres'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('admin.users.pending', compact('users'));
+    }
+
+    /**
+     * Liste des utilisateurs actifs
+     */
+    public function activeUsers()
+    {
+        $users = User::where('is_active', true)
+            ->with(['eleve.classe', 'eleve.anneeAcademique', 'professeur.matieres'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('admin.users.active', compact('users'));
+    }
+
+    /**
+     * Affichage d'un utilisateur
+     */
+    public function showUser($id)
+    {
+        $user = User::with([
+            'eleve.classe',
+            'eleve.anneeAcademique',
+            'professeur.matieres',
+        ])
+            ->findOrFail($id);
+
+        return view('admin.users.show', compact('user'));
+    }
+
+    /**
+     * Approbation d'un utilisateur
+     */
+    public function approveUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->update(['is_active' => true]);
+
+        Mail::to($user->email)->send(new AccountApproved($user));
+
+        return back()
+            ->with('success', "Le compte de {$this->fullName($user)} a été approuvé.");
+    }
+
+    /**
+     * Rejet d'un utilisateur
+     */
+    public function rejectUser(Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        $user = User::findOrFail($id);
+        $fullName = $this->fullName($user);
+
+        Mail::to($user->email)->send(new AccountRejected($user, $request->reason));
+
+        if ($user->professeur) {
+            $user->professeur->classes()->detach();
+            $user->professeur->matieres()->detach();
+            $user->professeur->delete();
+        }
+
+        if ($user->eleve) {
+            $user->eleve->delete();
+        }
+
+        $user->delete();
+
+        return back()
+            ->with('success', "Le compte de {$fullName} a été rejeté.");
+    }
+
+    /**
+     * Désactivation d'un utilisateur
+     */
+    public function deactivateUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->update(['is_active' => false]);
+
+        return back()
+            ->with('success', "Le compte de {$this->fullName($user)} a été désactivé.");
+    }
+
+    /**
+     * Méthode pour le nom complet
+     */
+    private function fullName(User $user)
+    {
+        return trim("{$user->prenom} {$user->nom}");
+    }
+
+    // Gestion des affectations professeurs/classes/matières par année scolaires
+    public function affectation($id)
+    {
+        $professeur = User::findOrFail($id);
+        $annees = AnneeAcademique::all();
+       $classes = Classe::with(['matieres.affectations'])->get();
+
+
+        return view('admin.professeurs.affectation', compact('professeur', 'annees', 'classes'));
+    }
+
+    public function storeAffectation(Request $request, $id)
+    {
+        $professeur = User::findOrFail($id);
+        $annee_id = $request->annee_scolaire_id;
+        $affectations = $request->affectations;
+
+        foreach ($affectations as $combo) {
+            [$classe_id, $matiere_id] = explode('-', $combo);
+            Affectation::create([
+                'professeur_id' => $professeur->id,
+                'classe_id' => $classe_id,
+                'matiere_id' => $matiere_id,
+                'annee_academique_id' => $annee_id,
+            ]);
+        }
+
+        return redirect()->route('professeurs.index')->with('success', 'Affectations enregistrées');
+    }
+
+    // Liste des années scolaires
+    public function anneesScolaires()
+    {
+        $annees = AnneeAcademique::all();
+
+        return view('admin.anneesScolaires.index', compact('annees'));
+    }
+
+    // Affichage formulaire année scolaire
+    public function createAnnee()
+    {
+        return view('admin.anneesScolaires.create');
+    }
+
+    // Enregistrer nouvelle année scolaire
+    public function storeAnnee(Request $request)
+    {
+        $request->validate([
+            'libelle' => 'required|string|max:255|unique:annee_academique,libelle',
+        ]);
+
+        AnneeAcademique::create([
+            'libelle' => $request->libelle,
+        ]);
+
+        return redirect()->route('admin.annees.index')->with('success', 'Année scolaire créée avec succès.');
+    }
+
+    // Formulaire édition année scolaire
+    public function editAnnee($id)
+    {
+        $annee = AnneeAcademique::findOrFail($id);
+
+        return view('admin.anneesScolaires.edit', compact('annee'));
+    }
+
+    // Mise à jour année scolaire
+    public function updateAnnee(Request $request, $id)
+    {
+        $request->validate([
+            'libelle' => 'required|string|max:255|unique:annee_academique,libelle,'.$id,
+        ]);
+
+        $annee = AnneeAcademique::findOrFail($id);
+        $annee->libelle = $request->libelle;
+        $annee->save();
+
+        return redirect()->route('admin.annees.index')->with('success', 'Année scolaire mise à jour avec succès.');
+    }
+
+    // Supprimer annee
+
+    public function destroyAnnee($id)
+    {
+        $annee = AnneeAcademique::findOrFail($id);
+        $annee->delete();
+
+        return redirect()->route('admin.annees.index')->with('success', 'Année scolaire supprimée avec succès.');
+    }
+}

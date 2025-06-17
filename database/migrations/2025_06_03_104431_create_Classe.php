@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('classes', function (Blueprint $table) {
             $table->id();
             $table->string('nom', 50);
-            $table->string('niveau', 20);
             $table->string('serie', 50)->nullable();
             $table->timestamps();
         });

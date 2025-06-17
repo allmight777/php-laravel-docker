@@ -11,134 +11,261 @@
                             <h3><i class="fas fa-user-plus me-2"></i> Créer un compte</h3>
                             <p class="mb-0">Sélectionnez votre profil pour commencer l'inscription</p>
                         </div>
+
                         <div class="auth-body">
                             <div class="d-flex justify-content-center mb-4">
-                                <button type="button" class="auth-tab active" id="student-tab">
+                                <button type="button"
+                                    class="auth-tab {{ old('user_type', 'eleve') == 'eleve' ? 'active' : '' }}"
+                                    id="student-tab">
                                     <i class="fas fa-user-graduate me-2"></i> Élève
                                 </button>
-                                <button type="button" class="auth-tab" id="teacher-tab">
+                                <button type="button"
+                                    class="auth-tab {{ old('user_type') == 'professeur' ? 'active' : '' }}"
+                                    id="teacher-tab">
                                     <i class="fas fa-user-tie me-2"></i> Professeur
                                 </button>
                             </div>
 
-                            <form id="register-form" method="POST" action="{{ route('register') }}">
+                            <form id="register-form" method="POST" action="{{ route('register') }}"
+                                enctype="multipart/form-data">
+
                                 @csrf
-                                <input type="hidden" name="user_type" id="user_type" value="student">
+                                <input type="hidden" name="user_type" id="user_type"
+                                    value="{{ old('user_type', 'eleve') }}">
 
                                 <!-- Champs Communs -->
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label class="form-label">Nom <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="nom" required>
+                                        <label for="nom" class="form-label">Nom <span
+                                                class="text-danger">*</span></label>
+                                        <input id="nom" type="text"
+                                            class="form-control @error('nom') is-invalid @enderror" name="nom"
+                                            value="{{ old('nom') }}" required>
+                                        @error('nom')
+                                            <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                        @enderror
                                     </div>
+
                                     <div class="col-md-6">
-                                        <label class="form-label">Prénom <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="prenom" required>
+                                        <label for="prenom" class="form-label">Prénom <span
+                                                class="text-danger">*</span></label>
+                                        <input id="prenom" type="text"
+                                            class="form-control @error('prenom') is-invalid @enderror" name="prenom"
+                                            value="{{ old('prenom') }}" required>
+                                        @error('prenom')
+                                            <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                        @enderror
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Email <span class="text-danger">*</span></label>
-                                        <input type="email" class="form-control" name="email" required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Téléphone <span class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" name="telephone" required>
-                                    </div>
+
                                     <div class="col-12">
-                                        <label class="form-label">Photo</label>
-                                        <input type="file" class="form-control" name="photo" accept="image/*">
+                                        <label for="email" class="form-label">Email <span
+                                                class="text-danger">*</span></label>
+                                        <input id="email" type="email"
+                                            class="form-control @error('email') is-invalid @enderror" name="email"
+                                            value="{{ old('email') }}" required>
+                                        @error('email')
+                                            <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                        @enderror
                                     </div>
+
                                     <div class="col-md-6">
-                                        <label class="form-label">Mot de passe <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" name="mot_de_passe" required
-                                            minlength="8">
+                                        <label for="telephone" class="form-label">Téléphone <span
+                                                class="text-danger">*</span></label>
+                                        <input id="telephone" type="text"
+                                            class="form-control @error('telephone') is-invalid @enderror" name="telephone"
+                                            value="{{ old('telephone') }}" required>
+                                        @error('telephone')
+                                            <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                        @enderror
                                     </div>
+
                                     <div class="col-md-6">
-                                        <label class="form-label">Confirmation <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" name="mot_de_passe_confirmation"
-                                            required>
+                                        <label for="date_de_naissance" class="form-label">Date de naissance <span
+                                                class="text-danger">*</span></label>
+                                        <input id="date_de_naissance" type="date"
+                                            class="form-control @error('date_de_naissance') is-invalid @enderror"
+                                            name="date_de_naissance" value="{{ old('date_de_naissance') }}" required>
+                                        @error('date_de_naissance')
+                                            <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="password" class="form-label">Mot de passe <span
+                                                class="text-danger">*</span></label>
+                                        <input id="password" type="password"
+                                            class="form-control @error('password') is-invalid @enderror" name="password"
+                                            required minlength="8">
+                                        <small class="text-muted">Minimum 8 caractères</small>
+                                        @error('password')
+                                            <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="password-confirm" class="form-label">Confirmation <span
+                                                class="text-danger">*</span></label>
+                                        <input id="password-confirm" type="password" class="form-control"
+                                            name="password_confirmation" required>
                                     </div>
 
                                     <!-- Champs Étudiant -->
-                                    <div id="student-fields">
-                                        <div class="col-12">
-                                            <label class="form-label">Date de naissance <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="date" class="form-control" name="date_naissance" required>
-                                        </div>
+                                    <div id="student-fields"
+                                        style="{{ old('user_type', 'eleve') == 'professeur' ? 'display: none;' : '' }}">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <label class="form-label">Classe <span class="text-danger">*</span></label>
-                                                <select class="form-select" name="classe_id" required>
+                                                <label for="classe_id" class="form-label">Classe <span
+                                                        class="text-danger">*</span></label>
+                                                <select id="classe_id"
+                                                    class="form-select @error('classe_id') is-invalid @enderror"
+                                                    name="classe_id">
+                                                    <option value="">Sélectionner votre classe</option>
                                                     @foreach ($classes as $classe)
-                                                        <option value="{{ $classe->id }}">{{ $classe->nom }}</option>
+                                                        <option value="{{ $classe->id }}"
+                                                            {{ old('classe_id') == $classe->id ? 'selected' : '' }}>
+                                                            {{ $classe->nom }} @if ($classe->serie)
+                                                                - {{ $classe->serie }}
+                                                            @endif
+                                                        </option>
                                                     @endforeach
                                                 </select>
+                                                @error('classe_id')
+                                                    <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                                @enderror
                                             </div>
 
                                             <div class="col-md-6">
-                                                <label class="form-label">Année académique <span
+                                                <label for="annee_academique_id" class="form-label">Année académique <span
                                                         class="text-danger">*</span></label>
-                                                <select class="form-select" name="annee_academique_id" required>
+                                                <select id="annee_academique_id"
+                                                    class="form-select @error('annee_academique_id') is-invalid @enderror"
+                                                    name="annee_academique_id">
+                                                    <option value="">Sélectionner l'année</option>
                                                     @foreach ($annees as $annee)
-                                                        <option value="{{ $annee->id }}">{{ $annee->libelle }}</option>
+                                                        <option value="{{ $annee->id }}"
+                                                            {{ old('annee_academique_id') == $annee->id ? 'selected' : '' }}>
+                                                            {{ $annee->libelle }}
+                                                        </option>
                                                     @endforeach
                                                 </select>
+                                                @error('annee_academique_id')
+                                                    <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                                @enderror
                                             </div>
                                         </div>
-
                                     </div>
 
-                                    <!-- Champs Professeur -->
-                                    <div id="teacher-fields" style="display: none;">
-                                        <div class="col-12">
-                                            <label class="form-label">Date de naissance <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="date" class="form-control" name="date_naissance">
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Numéro WhatsApp</label>
-                                            <input type="tel" class="form-control" name="numero_whatsapp">
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label">Classes enseignées <span
-                                                    class="text-danger">*</span></label>
-                                            <select class="form-select" name="classes[]" multiple style="height: 150px;">
-                                                @foreach ($classes as $classe)
-                                                    <option value="{{ $classe->id }}">{{ $classe->nom }}</option>
-                                                @endforeach
-                                            </select>
-                                            <small class="text-muted">Maintenez Ctrl (Windows) ou Cmd (Mac) pour sélection
-                                                multiple</small>
-                                        </div>
-                                    </div>
 
-                                    <div class="col-12 mt-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="terms" required>
-                                            <label class="form-check-label" for="terms">
-                                                Je certifie que les informations fournies sont exactes et j'accepte les
-                                                <a href="#" data-bs-toggle="modal"
-                                                    data-bs-target="#termsModal">conditions d'utilisation</a>
-                                            </label>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label for="photo" class="form-label">Photo de profil</label>
+                                    <input id="photo" type="file"
+                                        class="form-control @error('photo') is-invalid @enderror" name="photo"
+                                        accept="image/jpeg,image/png,image/jpg">
+                                    <small class="text-muted">Formats acceptés : JPEG, PNG. Max 2 Mo.</small>
+                                    @error('photo')
+                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+
+                                <!-- Champs Professeur -->
+                                <div id="teacher-fields"
+                                    style="{{ old('user_type') == 'professeur' ? '' : 'display: none;' }}">
+                                    <div class="col-12">
+                                        <div class="card border-primary mb-3 animate__animated animate__fadeIn">
+                                            <div class="card-header bg-primary text-white">
+                                                <i class="fas fa-chalkboard-teacher me-2"></i> Classes et Matières
+                                                enseignées
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="classes-container">
+
+                                                    <div class="class-selection mb-3">
+                                                        <div class="row g-3">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Classe <span
+                                                                        class="text-danger">*</span></label>
+                                                                <select class="form-select classe-select"
+                                                                    name="prof_classes[]">
+                                                                    <option value="">Sélectionner une classe
+                                                                    </option>
+                                                                    @foreach ($classes as $classe)
+                                                                        <option value="{{ $classe->id }}">
+                                                                            {{ $classe->nom }} @if ($classe->serie)
+                                                                                - {{ $classe->serie }}
+                                                                            @endif
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Matières <span
+                                                                        class="text-danger">*</span></label>
+                                                                <div class="matieres-container">
+                                                                    <select class="form-select matiere-select"
+                                                                        name="prof_matieres[0][]" multiple disabled>
+                                                                        <option value="">Sélectionnez d'abord une
+                                                                            classe</option>
+                                                                    </select>
+                                                                    <small class="text-muted">Maintenez Ctrl pour
+                                                                        sélectionner plusieurs matières</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mt-2 text-end">
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-danger remove-class-btn"
+                                                                style="display: none;">
+                                                                <i class="fas fa-trash me-1"></i> Supprimer
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end mt-3">
+                                                    <button type="button" id="add-class-btn"
+                                                        class="btn btn-sm btn-success">
+                                                        <i class="fas fa-plus me-1"></i> Ajouter une autre classe
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-
-                                    <div class="col-12 mt-3">
-                                        <button type="submit" class="btn btn-def w-100 py-3">
-                                            <i class="fas fa-paper-plane me-2"></i> Finaliser l'Inscription
-                                        </button>
-                                    </div>
-
-                                    <div class="col-12 text-center mt-3">
-                                        <p>Déjà inscrit? <a href="{{ route('login') }}"
-                                                class="text-decoration-underline">Connectez-vous ici</a></p>
                                     </div>
                                 </div>
-                            </form>
+
+                                <!-- Termes -->
+                                <div class="col-12 mt-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input @error('terms') is-invalid @enderror"
+                                            type="checkbox" id="terms" name="terms" required
+                                            {{ old('terms') ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="terms">
+                                            Je certifie que les informations fournies sont exactes et j'accepte les
+                                            <a href="#" data-bs-toggle="modal"
+                                                data-bs-target="#termsModal">conditions d'utilisation</a>
+                                        </label>
+                                        @error('terms')
+                                            <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mt-3">
+                                    <button type="submit" class="btn btn-def w-100 py-3">
+                                        <i class="fas fa-paper-plane me-2"></i> Finaliser l'Inscription
+                                    </button>
+                                </div>
+
+                                <div class="col-12 text-center mt-3">
+                                    <p>Déjà inscrit ? <a href="{{ route('login') }}"
+                                            class="text-decoration-underline">Connectez-vous ici</a></p>
+                                </div>
                         </div>
+                        </form>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </section>
 
@@ -157,6 +284,9 @@
 
                     <h6>2. Confidentialité des données</h6>
                     <p>Toutes les informations fournies sont protégées selon la loi sur la protection des données...</p>
+
+                    <h6>3. Responsabilités</h6>
+                    <p>Chaque utilisateur est responsable de la confidentialité de ses identifiants...</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-def" data-bs-dismiss="modal">J'ai compris</button>
@@ -172,85 +302,133 @@
             const studentFields = document.getElementById('student-fields');
             const teacherFields = document.getElementById('teacher-fields');
             const userTypeField = document.getElementById('user_type');
-            const form = document.getElementById('register-form');
 
-            // Fonction pour activer les champs étudiants
-            function activateStudentFields() {
-                // Activation visuelle
+            // Matières par classe
+            const matieresParClasse = @json($matieresParClasse);
+
+            studentTab.addEventListener('click', function() {
                 studentTab.classList.add('active');
                 teacherTab.classList.remove('active');
-
-                // Affichage des champs
                 studentFields.style.display = 'block';
                 teacherFields.style.display = 'none';
+                userTypeField.value = 'eleve';
+            });
 
-                // Mise à jour du type d'utilisateur
-                userTypeField.value = 'student';
-
-                // Gestion des required
-                form.querySelector('[name="classe_id"]').required = true;
-                form.querySelector('[name="annee_academique_id"]').required = true;
-                form.querySelector('[name="date_naissance"]').required = true;
-
-                // Désactiver les required des champs profs
-                form.querySelector('[name="classes[]"]').required = false;
-            }
-
-            // Fonction pour activer les champs professeurs
-            function activateTeacherFields() {
-                // Activation visuelle
+            teacherTab.addEventListener('click', function() {
                 teacherTab.classList.add('active');
                 studentTab.classList.remove('active');
-
-                // Affichage des champs
-                teacherFields.style.display = 'block';
                 studentFields.style.display = 'none';
+                teacherFields.style.display = 'block';
+                userTypeField.value = 'professeur';
+            });
 
-                // Mise à jour du type d'utilisateur
-                userTypeField.value = 'teacher';
 
-                // Gestion des required
-                form.querySelector('[name="classes[]"]').required = true;
-                form.querySelector('[name="date_naissance"]').required = true;
+            const classesContainer = document.getElementById('classes-container');
+            const addClassBtn = document.getElementById('add-class-btn');
 
-                // Désactiver les required des champs étudiants
-                form.querySelector('[name="classe_id"]').required = false;
-                form.querySelector('[name="annee_academique_id"]').required = false;
-            }
 
-            // Gestion du clic sur l'onglet Étudiant
-            studentTab.addEventListener('click', activateStudentFields);
+            function updateMatieres(classeSelect) {
+                const classeId = classeSelect.value;
+                const matiereSelect = classeSelect.closest('.class-selection').querySelector('.matiere-select');
+                const matieresContainer = classeSelect.closest('.class-selection').querySelector(
+                    '.matieres-container');
 
-            // Gestion du clic sur l'onglet Professeur
-            teacherTab.addEventListener('click', activateTeacherFields);
+                if (classeId) {
 
-            // Validation avant soumission
-            form.addEventListener('submit', function(e) {
-                if (!document.getElementById('terms').checked) {
-                    e.preventDefault();
-                    alert('Veuillez accepter les conditions d\'utilisation');
-                    return false;
-                }
+                    matiereSelect.disabled = false;
 
-                // Validation supplémentaire selon le type d'utilisateur
-                if (userTypeField.value === 'student') {
-                    if (!form.querySelector('[name="classe_id"]').value ||
-                        !form.querySelector('[name="annee_academique_id"]').value) {
-                        e.preventDefault();
-                        alert('Veuillez remplir tous les champs obligatoires pour les étudiants');
-                        return false;
+
+                    matiereSelect.innerHTML = '';
+
+                    if (matieresParClasse[classeId]) {
+                        matieresParClasse[classeId].forEach(matiere => {
+                            const option = document.createElement('option');
+                            option.value = matiere.id;
+                            option.textContent = `${matiere.nom} (${matiere.code})`;
+                            matiereSelect.appendChild(option);
+                        });
+                    }
+
+                    const removeBtn = classeSelect.closest('.class-selection').querySelector('.remove-class-btn');
+                    if (classesContainer.children.length > 1) {
+                        removeBtn.style.display = 'inline-block';
                     }
                 } else {
-                    if (!form.querySelector('[name="classes[]"]').selectedOptions.length) {
-                        e.preventDefault();
-                        alert('Veuillez sélectionner au moins une classe pour les professeurs');
-                        return false;
-                    }
+
+                    matiereSelect.disabled = true;
+                    matiereSelect.innerHTML = '<option value="">Sélectionnez d\'abord une classe</option>';
+                }
+            }
+
+
+            classesContainer.addEventListener('change', function(e) {
+                if (e.target.classList.contains('classe-select')) {
+                    updateMatieres(e.target);
                 }
             });
 
-            // Activer les champs étudiants par défaut
-            activateStudentFields();
+            addClassBtn.addEventListener('click', function() {
+                const newIndex = classesContainer.children.length;
+                const newClassSelection = document.createElement('div');
+                newClassSelection.className = 'class-selection mb-3 animate__animated animate__fadeIn';
+                newClassSelection.innerHTML = `
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Classe <span class="text-danger">*</span></label>
+                    <select class="form-select classe-select" name="prof_classes[]">
+                        <option value="">Sélectionner une classe</option>
+                        @foreach ($classes as $classe)
+                            <option value="{{ $classe->id }}">
+                                {{ $classe->nom }} @if ($classe->serie) - {{ $classe->serie }} @endif
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Matières <span class="text-danger">*</span></label>
+                    <div class="matieres-container">
+                        <select class="form-select matiere-select" name="prof_matieres[${newIndex}][]" multiple disabled>
+                            <option value="">Sélectionnez d'abord une classe</option>
+                        </select>
+                        <small class="text-muted">Maintenez Ctrl pour sélectionner plusieurs matières</small>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 text-end">
+                <button type="button" class="btn btn-sm btn-danger remove-class-btn">
+                    <i class="fas fa-trash me-1"></i> Supprimer
+                </button>
+            </div>
+        `;
+
+                classesContainer.appendChild(newClassSelection);
+
+                newClassSelection.classList.add('animate__fadeIn');
+            });
+
+            classesContainer.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-class-btn')) {
+                    const classSelection = e.target.closest('.class-selection');
+                    classSelection.classList.remove('animate__fadeIn');
+                    classSelection.classList.add('animate__fadeOut');
+
+                    setTimeout(() => {
+                        classSelection.remove();
+
+                        document.querySelectorAll('.class-selection').forEach((selection,
+                            index) => {
+                            const matiereSelect = selection.querySelector(
+                                '.matiere-select');
+                            matiereSelect.name = `prof_matieres[${index}][]`;
+                        });
+                    }, 300);
+                }
+            });
+
+
+            @if (old('user_type') == 'professeur')
+                teacherTab.click();
+            @endif
         });
     </script>
 @endsection
