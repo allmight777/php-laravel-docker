@@ -44,6 +44,7 @@
             display: flex;
             justify-content: center;
             width: 100%;
+            height: 50%;
             padding: 20px 0;
         }
 
@@ -56,8 +57,8 @@
 
         .clock {
             position: relative;
-            width: 200px;
-            height: 200px;
+            width: 100px;
+            height: 40px;
             background: #c9d5e0;
             display: flex;
             justify-content: center;
@@ -477,7 +478,7 @@
                 for (let i = 0; i < 60; i++) {
                     const tick = document.createElement('div');
                     tick.className = 'tick';
-            
+
                     if (i % 5 === 0) {
                         tick.classList.add('main');
                     }

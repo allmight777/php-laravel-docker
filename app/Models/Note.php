@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Note extends Model
 {
-   protected $fillable = ['eleve_id', 'matiere_id', 'type_evaluation', 'nom_evaluation', 'periode', 'valeur'];
-
+    protected $fillable = ['eleve_id',
+        'matiere_id',
+        'type_evaluation',
+        'nom_evaluation',
+        'periode_id',
+        'valeur',
+        'is_locked',
+    ];
 }

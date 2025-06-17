@@ -45,16 +45,16 @@ Route::middleware('auth')->group(function () {
         Route::post('annees-scolaires', [AdminController::class, 'storeAnnee'])->name('annees.store');
         Route::get('annees-scolaires/{id}/edit', [AdminController::class, 'editAnnee'])->name('annees.edit');
         Route::put('annees-scolaires/{id}', [AdminController::class, 'updateAnnee'])->name('annees.update');
-       Route::delete('annees-scolaires/{id}', [AdminController::class, 'destroyAnnee'])->name('annees.delete');
-
-
+        Route::delete('annees-scolaires/{id}', [AdminController::class, 'destroyAnnee'])->name('annees.delete');
 
         // Affectation classes/matières par année scolaire
         Route::get('professeurs/{professeur}/affectation', [AdminController::class, 'affectation'])->name('professeurs.affectation');
         Route::post('professeurs/{professeur}/affectation', [AdminController::class, 'storeAffectation'])->name('professeurs.affectation.store');
+        Route::get('/professeurs/{id}/edit-affectation', [AdminController::class, 'editAffectation'])->name('professeurs.affectation.edit');
+        Route::put('/professeurs/{id}/update-affectation', [AdminController::class, 'updateAffectation'])->name('professeurs.affectation.update');
     });
 
-    //Classes et Professeurs
+    // Classes et Professeurs
     Route::resource('classes', ClasseController::class);
     Route::resource('professeurs', ProfesseurController::class);
 
@@ -67,11 +67,11 @@ Route::middleware('auth')->group(function () {
     // Routes Professeur
     Route::prefix('professeur')->name('professeur.')->group(function () {
         Route::get('/dashboard', [ProfesseurController::class, 'dashboard'])->name('dashboard');
-        Route::get('/classes', [ProfesseurController::class, 'mesClasses'])->name('classes');
-        Route::get('/classe/{classe}/eleves', [ProfesseurController::class, 'elevesParClasse'])->name('classe.eleves');
-        Route::post('/notes/enregistrer', [ProfesseurController::class, 'enregistrerNotes'])->name('notes.enregistrer');
+        Route::get('/classes/{anneeId}', [ProfesseurController::class, 'mesClasses'])->name('classes');
+        Route::get('/classe/{anneeId}/{classeId}/eleves', [ProfesseurController::class, 'elevesParClasse'])->name('classe.eleves');
+        Route::post('/notes/enregistrer', [ProfesseurController::class, 'saisirNotes'])->name('notes.enregistrer');
     });
 });
 
-// Réinitialisation des mots de passe
+// Réinitialisation des mots de passe , pour avoir tout les options auth
 Auth::routes();

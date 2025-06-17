@@ -8,9 +8,11 @@ use App\Mail\AccountRejected;
 use App\Models\Affectation;
 use App\Models\AnneeAcademique;
 use App\Models\Classe;
+use App\Models\Matiere;
 use App\Models\Professeur;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
@@ -157,10 +159,23 @@ class AdminController extends Controller
     // Gestion des affectations professeurs/classes/matières par année scolaires
     public function affectation($id)
     {
+
+       // afficher les classes et matières à affecter à un professeur donné.
+
         $professeur = User::findOrFail($id);
         $annees = AnneeAcademique::all();
-       $classes = Classe::with(['matieres.affectations'])->get();
 
+        $classes = Classe::all()->map(function ($classe) {
+            $classe->matieres = DB::table('classe_matiere_professeur')
+                ->where('classe_id', $classe->id)
+                ->whereNull('professeur_id')
+                ->join('matieres', 'matieres.id', '=', 'classe_matiere_professeur.matiere_id')
+                ->select('matieres.id', 'matieres.nom', 'matieres.code')
+                ->distinct() 
+                ->get();
+
+            return $classe;
+        });
 
         return view('admin.professeurs.affectation', compact('professeur', 'annees', 'classes'));
     }
@@ -169,19 +184,71 @@ class AdminController extends Controller
     {
         $professeur = User::findOrFail($id);
         $annee_id = $request->annee_scolaire_id;
-        $affectations = $request->affectations;
 
-        foreach ($affectations as $combo) {
+        foreach ($request->affectations ?? [] as $combo) {
             [$classe_id, $matiere_id] = explode('-', $combo);
-            Affectation::create([
-                'professeur_id' => $professeur->id,
-                'classe_id' => $classe_id,
-                'matiere_id' => $matiere_id,
-                'annee_academique_id' => $annee_id,
-            ]);
+
+            // Vérifier si l'affectation existe déjà
+            $exists = Affectation::where('professeur_id', $professeur->id)
+                ->where('classe_id', $classe_id)
+                ->where('matiere_id', $matiere_id)
+                ->where('annee_academique_id', $annee_id)
+                ->exists();
+
+            if (! $exists) {
+                Affectation::create([
+                    'professeur_id' => $professeur->id,
+                    'classe_id' => $classe_id,
+                    'matiere_id' => $matiere_id,
+                    'annee_academique_id' => $annee_id,
+                ]);
+            }
         }
 
         return redirect()->route('professeurs.index')->with('success', 'Affectations enregistrées');
+    }
+    // MOdifier les affcetations
+
+    public function editAffectation($id)
+    {
+        $professeur = User::findOrFail($id);
+        $affectations = Affectation::where('professeur_id', $professeur->id)
+            ->with(['classe', 'matiere', 'anneeAcademique'])
+            ->get()
+            ->groupBy('annee_academique_id');
+
+        $annees = AnneeAcademique::all();
+        $classes = Classe::all();
+        $matieres = Matiere::all();
+
+        return view('admin.professeurs.editAffectation', compact('professeur', 'affectations', 'annees', 'classes', 'matieres'));
+    }
+
+    // Update
+    public function updateAffectation(Request $request, $id)
+    {
+        $professeur = User::findOrFail($id);
+
+        // Suppression des anciennes affectations
+        Affectation::where('professeur_id', $professeur->id)
+            ->where('annee_academique_id', $request->annee_academique_id)
+            ->delete();
+
+        if ($request->has('affectations')) {
+            $affectations = array_unique($request->affectations);
+
+            foreach ($affectations as $combo) {
+                [$classe_id, $matiere_id] = explode('-', $combo);
+                Affectation::create([
+                    'professeur_id' => $professeur->id,
+                    'classe_id' => $classe_id,
+                    'matiere_id' => $matiere_id,
+                    'annee_academique_id' => $request->annee_academique_id,
+                ]);
+            }
+        }
+
+        return redirect()->route('professeurs.index')->with('success', 'Affectations mises à jour avec succès.');
     }
 
     // Liste des années scolaires

@@ -1,42 +1,39 @@
 @extends('layouts.app')
 
 @section('content')
-
     <div class="professor-dashboard">
-
         <div class="professor-hero">
-            <br><br><br><br><br><br><br><br><br>
             <div class="hero-overlay"></div>
             <div class="container">
-                <div class="hero-content text-center text-white">
-                    <h1 class="display-4 animate__animated animate__fadeInDown">Espace Professeur</h1>
-                    <p class="lead animate__animated animate__fadeInUp">Bienvenue, {{ Auth::user()->nom }} {{ Auth::user()->prenom }}</p>
+                <div class="hero-content text-center text-white animate__animated animate__fadeIn">
+                    <h1 class="display-4">Espace Professeur</h1>
+                    <p class="lead">Bienvenue, {{ Auth::user()->nom }} {{ Auth::user()->prenom }}</p>
                 </div>
             </div>
+        </div>
 
-            <!-- Dashboard Cards -->
-            <div class="container py-5">
-                <div class="row g-4">
-                    <div class="col-md-4">
-                        <div class="card dashboard-card animate__animated animate__fadeInLeft">
-                            <div class="card-body text-center">
-                                <i class="fas fa-chalkboard-teacher fa-3x mb-3"></i>
-                                <h3>Mes Classes</h3>
-                                <p>Gérer vos classes et matières</p>
-                                <a href="{{ route('professeur.classes') }}" class="btn btn-primary">Accéder</a>
+        <div class="container py-5 animate__animated animate__fadeInUp">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3><i class="fas fa-calendar-alt me-2"></i> Choisir une année académique</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach ($annees as $annee)
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 border-primary">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-calendar fa-3x text-primary mb-3"></i>
+                                        <h4>{{ $annee->libelle }}</h4>
+                                        <p class="text-muted">Gérer vos classes et notes</p>
+                                        <a href="{{ route('professeur.classes', $annee->id) }}"
+                                            class="btn btn-primary btn-lg px-4">
+                                            <i class="fas fa-arrow-right me-2"></i> Sélectionner
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="card dashboard-card animate__animated animate__fadeInUp">
-                            <div class="card-body text-center">
-                                <i class="fas fa-clipboard-list fa-3x mb-3"></i>
-                                <h3>Notes</h3>
-                                <p>Saisir et consulter les notes</p>
-                                <a href="#" class="btn btn-primary">Accéder</a>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
@@ -44,33 +41,40 @@
     </div>
 
     <style>
+        .professor-dashboard {
+            min-height: 100vh;
+        }
+
         .professor-hero {
             position: relative;
-            height: 900px;
-            background:  url('../images/image_5.png') no-repeat center top;
+            height: 400px;
             background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            display: flex;
             align-items: center;
-            justify-content: center;
         }
 
         .hero-overlay {
             position: absolute;
-            top: ;
+            top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-
+            background: rgba(0, 0, 0, 0.5);
         }
 
         .hero-content {
             position: relative;
             z-index: 1;
+            padding-top: 80px;
         }
 
-        .dashboard-card i {
-            color: #3490dc;
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
     </style>
 @endsection
