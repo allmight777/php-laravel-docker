@@ -29,8 +29,8 @@
         </div>
 
         <div class="card mb-4">
-<br>
-           <h5 class="mb-4 text-dark">Autes</h5>
+            <br>
+            <h5 class="mb-4 text-dark">Autes</h5>
 
             <div class="col-md-4 mb-3">
                 <div class="card dashboard-card bg-success text-white">

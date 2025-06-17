@@ -177,7 +177,7 @@
                 <div class="col-md-4 animate__animated animate__fadeInLeft">
                     <div class="card border-0 shadow-sm h-100" id="contact">
                         <div class="card-body text-center p-4">
-                            <a href="">
+                            <a href="https://maps.app.goo.gl/RdquSAeSLBFDTfeh6" target="_Blank">
                                 <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3 mb-3 mx-auto"
                                     style="width: 70px; height: 70px;">
                                     <i class="fas fa-map-marker-alt fs-3"></i>
@@ -190,30 +190,35 @@
                 </div>
 
                 <div class="col-md-4 animate__animated animate__fadeInUp">
-                    <div class="card border-0 shadow-sm h-100" id="contact">
-                        <div class="card-body text-center p-4">
-                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3 mb-3 mx-auto"
-                                style="width: 70px; height: 70px;">
-                                <i class="fas fa-phone-alt fs-3"></i>
+                    <a href="tel:+229019484958" class="text-decoration-none text-dark">
+                        <div class="card border-0 shadow-sm h-100" id="contact">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3 mb-3 mx-auto"
+                                    style="width: 70px; height: 70px;">
+                                    <i class="fas fa-phone-alt fs-3"></i>
+                                </div>
+                                <h5>Téléphone</h5>
+                                <p class="text-muted mb-0">+229 019484958</p>
                             </div>
-                            <h5>Téléphone</h5>
-                            <p class="text-muted mb-0">+229 019484958</p>
                         </div>
-                    </div>
+                    </a>
                 </div>
 
                 <div class="col-md-4 animate__animated animate__fadeInRight">
-                    <div class="card border-0 shadow-sm h-100" id="contact">
-                        <div class="card-body text-center p-4">
-                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3 mb-3 mx-auto"
-                                style="width: 70px; height: 70px;">
-                                <i class="fas fa-envelope fs-3"></i>
+                    <a href="mailto:agoliganange15@gmail.com" class="text-decoration-none text-dark">
+                        <div class="card border-0 shadow-sm h-100" id="contact">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3 mb-3 mx-auto"
+                                    style="width: 70px; height: 70px;">
+                                    <i class="fas fa-envelope fs-3"></i>
+                                </div>
+                                <h5>Email</h5>
+                                <p class="text-muted mb-0">ministere@gmail.com</p>
                             </div>
-                            <h5>Email</h5>
-                            <p class="text-muted mb-0">ministere@gmail.com</p>
                         </div>
-                    </div>
+                    </a>
                 </div>
+
             </div>
         </div>
     </section>

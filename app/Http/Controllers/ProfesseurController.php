@@ -7,6 +7,7 @@ use App\Models\ClasseMatiereProfesseur;
 use App\Models\Eleve;
 use App\Models\Note;
 use App\Models\AnneeAcademique;
+use App\Models\Professeur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,7 +25,15 @@ class ProfesseurController extends Controller
         return back()->with('success', 'Classes affectées avec succès');
     }
 
-    // nouveau
+    // les trucs du professeurs
+
+    // liste des professeurs
+    public function index()
+    {
+        $professeurs = Professeur::with('user')->get();
+
+        return view('admin.professeurs.index', compact('professeurs'));
+    }
 
     public function dashboard()
     {
