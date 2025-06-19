@@ -91,6 +91,7 @@ Route::middleware('auth')->group(function () {
 
     // eleves
     // web.php
+    
 Route::get('/bulletins', [BulletinController::class, 'index'])->name('bulletin.index');
 Route::get('/bulletins/{annee_academique_id}', [BulletinController::class, 'show'])->name('bulletin.show');
 

@@ -130,6 +130,8 @@ public function downloadBulletin($annee_academique_id)
         ];
 
         // Calcul pour la moyenne annuelle
+
+        
         if (!isset($moyennesPeriodes[$periodeId])) {
             $moyennesPeriodes[$periodeId] = $bulletin->moyenne_periodique;
             $sommeMoyennesPeriodes += $bulletin->moyenne_periodique;
