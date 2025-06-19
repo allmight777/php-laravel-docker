@@ -13,7 +13,9 @@ use App\Models\Professeur;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
@@ -160,7 +162,7 @@ class AdminController extends Controller
     public function affectation($id)
     {
 
-       // afficher les classes et matières à affecter à un professeur donné.
+        // afficher les classes et matières à affecter à un professeur donné.
 
         $professeur = User::findOrFail($id);
         $annees = AnneeAcademique::all();
@@ -171,7 +173,7 @@ class AdminController extends Controller
                 ->whereNull('professeur_id')
                 ->join('matieres', 'matieres.id', '=', 'classe_matiere_professeur.matiere_id')
                 ->select('matieres.id', 'matieres.nom', 'matieres.code')
-                ->distinct() 
+                ->distinct()
                 ->get();
 
             return $classe;
@@ -309,5 +311,78 @@ class AdminController extends Controller
         $annee->delete();
 
         return redirect()->route('admin.annees.index')->with('success', 'Année scolaire supprimée avec succès.');
+    }
+
+    // Gestin des comptes utilisateurs
+
+    public function listUsers()
+    {
+        $users = User::with(['professeur', 'eleve'])
+            ->orderBy('nom')
+            ->paginate(10);
+
+        return view('admin.users.listeElevesProfs', compact('users'));
+    }
+
+    public function editUser(User $user)
+    {
+        return view('admin.users.edit', compact('user'));
+    }
+
+    public function updateUser(Request $request, User $user)
+    {
+        $validator = Validator::make($request->all(), [
+            'nom' => 'nullable|string|max:255',
+            'prenom' => 'nullable|string|max:255',
+            'email' => 'nullable|email|unique:users,email,'.$user->id,
+            'telephone' => 'nullable|string|max:20',
+            'date_de_naissance' => 'nullable|date',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $data = [];
+
+        if ($request->filled('nom')) {
+            $data['nom'] = $request->nom;
+        }
+
+        if ($request->filled('prenom')) {
+            $data['prenom'] = $request->prenom;
+        }
+
+        if ($request->filled('email')) {
+            $data['email'] = $request->email;
+        }
+
+        if ($request->filled('telephone')) {
+            $data['telephone'] = $request->telephone;
+        }
+
+        if ($request->filled('date_de_naissance')) {
+            $data['date_de_naissance'] = $request->date_de_naissance;
+        }
+
+        // Photo
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('avatars', 'public');
+            $data['photo'] = $photoPath;
+        }
+
+        // Mot de passe
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $user->update($data);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Utilisateur mis à jour avec succès!');
     }
 }

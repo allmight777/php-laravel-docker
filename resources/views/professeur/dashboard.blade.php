@@ -8,6 +8,10 @@
                 <div class="hero-content text-center text-white animate__animated animate__fadeIn">
                     <h1 class="display-4">Espace Professeur</h1>
                     <p class="lead">Bienvenue, {{ Auth::user()->nom }} {{ Auth::user()->prenom }}</p>
+                    <br>
+                    <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-user-edit me-2"></i> Modifier mon profil
+                    </a>
                 </div>
             </div>
         </div>

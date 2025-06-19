@@ -13,12 +13,19 @@ class Bulletin extends Model
         'moyenne',
         'moyenne_coefficient',
         'moyenne_generale',
+        'moyenne_periodique',
+        'rang_periodique',
         'statut',
         'matiere_id',
         'rang',
     ];
 
     // Relations éventuelles
+    public function notes()
+{
+    return $this->hasMany(Note::class);
+}
+
     public function eleve()
     {
         return $this->belongsTo(Eleve::class);
@@ -28,4 +35,10 @@ class Bulletin extends Model
     {
         return $this->belongsTo(PeriodeAcademique::class);
     }
+    public function matiere()
+{
+    return $this->belongsTo(Matiere::class);
+}
+
+
 }
