@@ -60,7 +60,7 @@
             width: 100px;
             height: 40px;
             background: #c9d5e0;
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
             border-radius: 30px;
@@ -397,7 +397,7 @@
                         </ul>
                     </div>
                 </div>
-                
+
                 <div class="col-lg-3 col-md-12">
                     <div class="footer-clock-container">
                         <div class="clock-container">

@@ -44,7 +44,13 @@ class ProfesseurController extends Controller
 
     public function mesClasses($anneeId)
     {
-        $professeurId = Auth::user()->professeur->id;
+        $user = Auth::user();
+
+        if (! $user || ! $user->professeur) {
+            abort(403, "Accès non autorisé : Vous n'etes pas un professeur.");
+        }
+
+        $professeurId = $user->professeur->id;
 
         $classes = Affectation::with(['classe', 'matiere'])
             ->where('professeur_id', $professeurId)
@@ -56,6 +62,13 @@ class ProfesseurController extends Controller
 
         return view('professeur.classes', compact('classes', 'annee'));
     }
+
+
+
+
+
+
+
 
     public function elevesParClasse($anneeId, $classeId)
     {
@@ -84,7 +97,7 @@ class ProfesseurController extends Controller
         $annee = AnneeAcademique::findOrFail($anneeId);
         $periodes = PeriodeAcademique::where('annee_academique_id', $anneeId)->get();
 
-        // Récupérer la matière sélectionnée ou la première par défaut
+        // Récupérer la matière sélectionnée
         $selectedMatiereId = request('matiere_id', $affectations->first()->matiere->id ?? null);
         $selectedPeriodeId = request('periode_id', $periodes->first()->id ?? null);
 
@@ -97,7 +110,7 @@ class ProfesseurController extends Controller
                 ->get();
 
             foreach ($notes as $note) {
-                $notesExistantes[$note->eleve_id . '_' . $note->nom_evaluation] = $note;
+                $notesExistantes[$note->eleve_id.'_'.$note->nom_evaluation] = $note;
             }
         }
 
@@ -112,6 +125,14 @@ class ProfesseurController extends Controller
             'selectedPeriodeId'
         ));
     }
+
+
+
+
+
+
+
+    // Methode pour lenregistrement des notes
 
     public function saisirNotes(Request $request)
     {
@@ -189,16 +210,27 @@ class ProfesseurController extends Controller
                         'moyenne_coefficient' => $moyenneCoefficient,
                         'statut' => $moyenne >= 12 ? 1 : 0,
                         'rang' => 0,
+                        'coefficient' => $coefficient,
                     ]
                 );
             }
 
             $this->updateRanks($request->periode_id, $request->matiere_id);
-            $this->calculateAnnualAverages($request->classe_id, $request->annee_academique_id);
+            $this->calculatePeriodicAverages($request->periode_id, $request->classe_id);
+            $this->calculatePeriodicRanks($request->periode_id, $request->classe_id);
+
         });
 
         return back()->with('success', 'Notes enregistrées avec succès!');
     }
+
+
+
+
+
+
+
+    // Methode pour la mise a jour automatique des rangs
 
     private function updateRanks($periodeId, $matiereId)
     {
@@ -214,32 +246,72 @@ class ProfesseurController extends Controller
         }
     }
 
-    private function calculateAnnualAverages($classeId, $anneeId)
+
+
+
+
+
+    // Methode pour le calcule des moyenne par période
+
+    private function calculatePeriodicAverages($periodeId, $classeId)
     {
-        $eleves = Eleve::where('classe_id', $classeId)
-            ->where('annee_academique_id', $anneeId)
-            ->get();
+        $eleves = Eleve::where('classe_id', $classeId)->get();
 
         foreach ($eleves as $eleve) {
-            $periodes = PeriodeAcademique::where('annee_academique_id', $anneeId)->get();
-            $totalMoyenne = 0;
-            $periodeCount = 0;
+            $results = DB::table('bulletins')
+                ->join('classe_matiere_professeur', function ($join) use ($classeId) {
+                    $join->on('bulletins.matiere_id', '=', 'classe_matiere_professeur.matiere_id')
+                        ->where('classe_matiere_professeur.classe_id', '=', $classeId);
+                })
+                ->where('bulletins.eleve_id', $eleve->id)
+                ->where('bulletins.periode_id', $periodeId)
+                ->selectRaw('
+                SUM(bulletins.moyenne * classe_matiere_professeur.coefficient) as total_moyenne_coeff,
+                SUM(classe_matiere_professeur.coefficient) as total_coefficient
+            ')
+                ->first();
 
-            foreach ($periodes as $periode) {
-                $bulletin = Bulletin::where('eleve_id', $eleve->id)
-                    ->where('periode_id', $periode->id)
-                    ->first();
+            if ($results && $results->total_coefficient > 0) {
+                $moyennePeriodique = $results->total_moyenne_coeff / $results->total_coefficient;
 
-                if ($bulletin) {
-                    $totalMoyenne += $bulletin->moyenne;
-                    $periodeCount++;
-                }
+                // Mettre à jour tous les bulletins de l'élève pour cette période
+                Bulletin::where('eleve_id', $eleve->id)
+                    ->where('periode_id', $periodeId)
+                    ->update([
+                        'moyenne_periodique' => $moyennePeriodique,
+                    ]);
             }
+        }
+    }
 
-            if ($periodeCount > 0) {
-                $moyenneAnnuelle = $totalMoyenne / $periodeCount;
-                // Stockage à venir si besoin
-            }
+
+
+
+
+
+    // Methode pour le calcule des rang par periode
+    private function calculatePeriodicRanks($periodeId, $classeId)
+    {
+        $moyennes = Bulletin::where('periode_id', $periodeId)
+            ->whereIn('eleve_id', function ($query) use ($classeId) {
+                $query->select('id')
+                    ->from('eleves')
+                    ->where('classe_id', $classeId);
+            })
+            ->select('eleve_id', DB::raw('AVG(moyenne_periodique) as moyenne'))
+            ->groupBy('eleve_id')
+            ->orderByDesc('moyenne')
+            ->get();
+
+        $rang = 1;
+
+        foreach ($moyennes as $item) {
+            Bulletin::where('periode_id', $periodeId)
+                ->where('eleve_id', $item->eleve_id)
+                ->update([
+                    'rang_periodique' => $rang,
+                ]);
+            $rang++;
         }
     }
 
@@ -247,29 +319,8 @@ class ProfesseurController extends Controller
     {
         $classes = Classe::all();
         $annees = AnneeAcademique::all();
+
         return view('bulletin.index');
-    }
-
-    public function showBulletin()
-    {
-        $eleve = auth()->user();
-
-        if (!$eleve instanceof \App\Models\Eleve) {
-            abort(403, 'Accès non autorisé.');
-        }
-
-        $notes = Note::with('matieres')
-            ->where('eleve_id', $eleve->id)
-            ->get()
-            ->groupBy('matiere.nom');
-
-        $moyenneGenerale = $this->calculerMoyenneGenerale($notes);
-
-        return view('bulletin.show', [
-            'eleve' => $eleve,
-            'notesParMatiere' => $notes,
-            'moyenneGenerale' => $moyenneGenerale
-        ]);
     }
 
     private function calculerMoyenneGenerale($notesParMatiere)
@@ -284,5 +335,168 @@ class ProfesseurController extends Controller
         }
 
         return $count > 0 ? round($total / $count, 2) : 0;
+    }
+
+
+
+
+
+
+    // Gestion des statistiques
+
+    public function showStatistics($anneeId, $classeId)
+    {
+        $professeurId = Auth::user()->professeur->id;
+
+        // Récupérer les affectations du professeur
+        $affectations = Affectation::where('professeur_id', $professeurId)
+            ->where('classe_id', $classeId)
+            ->where('annee_academique_id', $anneeId)
+            ->with('matiere')
+            ->get();
+
+        $classe = Classe::findOrFail($classeId);
+        $annee = AnneeAcademique::findOrFail($anneeId);
+        $periodes = PeriodeAcademique::where('annee_academique_id', $anneeId)->get();
+
+        // Récupérer la période sélectionnée (ou la première par défaut)
+        $selectedPeriodeId = request('periode_id', $periodes->first()->id ?? null);
+        $selectedMatiereId = request('matiere_id', $affectations->first()->matiere_id ?? null);
+
+        $statistics = [];
+        $topStudents = [];
+        $bottomStudents = [];
+        $successRates = [];
+        $globalStats = null;
+
+        if ($selectedPeriodeId) {
+            // Statistiques par matière si une matière est sélectionnée
+            if ($selectedMatiereId) {
+                $statistics = $this->getMatiereStatistics($classeId, $selectedMatiereId, $selectedPeriodeId);
+            }
+
+            // Top 3 et 3 derniers élèves (toutes matières confondues)
+            $topStudents = $this->getTopStudents($classeId, $selectedPeriodeId, 3);
+            $bottomStudents = $this->getBottomStudents($classeId, $selectedPeriodeId, 3);
+
+            // Taux de réussite global
+            $globalStats = $this->getGlobalStatistics($classeId, $selectedPeriodeId);
+
+            // Taux de réussite par matière
+            foreach ($affectations as $affectation) {
+                $successRates[$affectation->matiere->nom] = $this->getSuccessRate(
+                    $classeId,
+                    $affectation->matiere_id,
+                    $selectedPeriodeId
+                );
+            }
+        }
+
+        return view('professeur.statistiques', compact(
+            'classe',
+            'annee',
+            'periodes',
+            'affectations',
+            'selectedPeriodeId',
+            'selectedMatiereId',
+            'statistics',
+            'topStudents',
+            'bottomStudents',
+            'globalStats',
+            'successRates'
+        ));
+    }
+
+
+
+
+
+
+    // Méthodes recuperer et calculer pour les statistiques
+    private function getMatiereStatistics($classeId, $matiereId, $periodeId)
+    {
+        return Bulletin::where('matiere_id', $matiereId)
+            ->where('periode_id', $periodeId)
+            ->whereIn('eleve_id', function ($query) use ($classeId) {
+                $query->select('id')
+                    ->from('eleves')
+                    ->where('classe_id', $classeId);
+            })
+            ->selectRaw('
+            COUNT(*) as total_eleves,
+            SUM(CASE WHEN statut = 1 THEN 1 ELSE 0 END) as reussite,
+            SUM(CASE WHEN statut = 0 THEN 1 ELSE 0 END) as echec,
+            AVG(moyenne) as moyenne_classe,
+            MIN(moyenne) as pire_note,
+            MAX(moyenne) as meilleure_note
+        ')
+            ->first();
+    }
+
+    private function getTopStudents($classeId, $periodeId, $limit = 3)
+    {
+        return Bulletin::with(['eleve.user'])
+            ->where('periode_id', $periodeId)
+            ->whereIn('eleve_id', function ($query) use ($classeId) {
+                $query->select('id')
+                    ->from('eleves')
+                    ->where('classe_id', $classeId);
+            })
+            ->select('eleve_id', DB::raw('AVG(moyenne_periodique) as moyenne'))
+            ->groupBy('eleve_id')
+            ->orderByDesc('moyenne')
+            ->limit($limit)
+            ->get();
+    }
+
+    private function getBottomStudents($classeId, $periodeId, $limit = 3)
+    {
+        return Bulletin::with(['eleve.user'])
+            ->where('periode_id', $periodeId)
+            ->whereIn('eleve_id', function ($query) use ($classeId) {
+                $query->select('id')
+                    ->from('eleves')
+                    ->where('classe_id', $classeId);
+            })
+            ->select('eleve_id', DB::raw('AVG(moyenne_periodique) as moyenne'))
+            ->groupBy('eleve_id')
+            ->orderBy('moyenne')
+            ->limit($limit)
+            ->get();
+    }
+
+    private function getGlobalStatistics($classeId, $periodeId)
+    {
+        return Bulletin::where('periode_id', $periodeId)
+            ->whereIn('eleve_id', function ($query) use ($classeId) {
+                $query->select('id')
+                    ->from('eleves')
+                    ->where('classe_id', $classeId);
+            })
+            ->selectRaw('
+            COUNT(DISTINCT eleve_id) as total_eleves,
+            AVG(moyenne_periodique) as moyenne_generale,
+            SUM(CASE WHEN moyenne_periodique >= 12 THEN 1 ELSE 0 END) as reussite,
+            SUM(CASE WHEN moyenne_periodique < 12 THEN 1 ELSE 0 END) as echec
+        ')
+            ->first();
+    }
+
+    private function getSuccessRate($classeId, $matiereId, $periodeId)
+    {
+        $stats = Bulletin::where('matiere_id', $matiereId)
+            ->where('periode_id', $periodeId)
+            ->whereIn('eleve_id', function ($query) use ($classeId) {
+                $query->select('id')
+                    ->from('eleves')
+                    ->where('classe_id', $classeId);
+            })
+            ->selectRaw('
+            COUNT(*) as total,
+            SUM(CASE WHEN statut = 1 THEN 1 ELSE 0 END) as reussite
+        ')
+            ->first();
+
+        return $stats->total > 0 ? round(($stats->reussite / $stats->total) * 100, 2) : 0;
     }
 }

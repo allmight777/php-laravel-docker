@@ -13,12 +13,14 @@ class Bulletin extends Model
         'moyenne',
         'moyenne_coefficient',
         'moyenne_generale',
+        'moyenne_periodique',
+        'rang_periodique',
         'statut',
         'matiere_id',
         'rang',
     ];
 
-    // Relations éventuelles
+    // Relations 
     public function eleve()
     {
         return $this->belongsTo(Eleve::class);

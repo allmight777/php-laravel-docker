@@ -11,9 +11,9 @@ class DownloadController extends Controller
 {
     public function download(): StreamedResponse
     {
-        $filePath = 'public/files/file1.pdf'; // Chemin vers le fichier
-        $fileName = 'document-officiel.pdf'; // Nom personnalisé pour le téléchargement
-        
+        $filePath = 'public/files/file1.pdf';
+        $fileName = 'document-officiel.pdf';
+
         return Storage::download($filePath, $fileName);
     }
 }

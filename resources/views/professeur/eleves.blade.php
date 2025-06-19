@@ -19,21 +19,27 @@
                         </div>
                     @endif
 
-                    @if ($periodes->isEmpty() || $affectations->isEmpty()))
+                    @if ($periodes->isEmpty() || $affectations->isEmpty())
+                        
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
                             Aucune période académique ou matière disponible pour cette classe.
                         </div>
                     @else
-                        <form id="filterForm" method="GET" action="{{ route('professeur.classe.eleves', ['anneeId' => $annee->id, 'classeId' => $classe->id]) }}">
+                        <form id="filterForm" method="GET"
+                            action="{{ route('professeur.classe.eleves', ['anneeId' => $annee->id, 'classeId' => $classe->id]) }}">
                             <div class="row mb-4">
                                 <div class="col-md-6">
                                     <div class="card">
                                         <div class="card-body">
-                                            <h5 class="card-title"><i class="fas fa-calendar-week me-2"></i>Période académique</h5>
-                                            <select class="form-select" name="periode_id" id="periodeSelect" onchange="this.form.submit()">
+                                            <h5 class="card-title"><i class="fas fa-calendar-week me-2"></i>Période
+                                                académique</h5>
+                                            <select class="form-select" name="periode_id" id="periodeSelect"
+                                                onchange="this.form.submit()">
                                                 @foreach ($periodes as $periode)
-                                                    <option value="{{ $periode->id }}" {{ $selectedPeriodeId == $periode->id ? 'selected' : '' }}>{{ $periode->nom }}</option>
+                                                    <option value="{{ $periode->id }}"
+                                                        {{ $selectedPeriodeId == $periode->id ? 'selected' : '' }}>
+                                                        {{ $periode->nom }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -43,13 +49,15 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <h5 class="card-title"><i class="fas fa-book me-2"></i>Matière</h5>
-                                            <select class="form-select" name="matiere_id" id="matiereSelect" onchange="this.form.submit()">
+                                            <select class="form-select" name="matiere_id" id="matiereSelect"
+                                                onchange="this.form.submit()">
                                                 @foreach ($affectations as $affectation)
                                                     @if ($affectation->matiere)
                                                         <option value="{{ $affectation->matiere->id }}"
                                                             data-coefficient="{{ $affectation->matiere->coefficient ?? 1 }}"
                                                             {{ $selectedMatiereId == $affectation->matiere->id ? 'selected' : '' }}>
-                                                            {{ $affectation->matiere->nom }} (Coeff: {{ $affectation->matiere->coefficient ?? 1 }})
+                                                            {{ $affectation->matiere->nom }} (Coeff:
+                                                            {{ $affectation->matiere->coefficient ?? 1 }})
                                                         </option>
                                                     @endif
                                                 @endforeach
@@ -104,7 +112,8 @@
                                             @endif
                                         @empty
                                             <tr>
-                                                <td colspan="8" class="text-center text-muted">Aucun élève dans cette classe</td>
+                                                <td colspan="8" class="text-center text-muted">Aucun élève dans cette
+                                                    classe</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -112,9 +121,16 @@
                             </div>
 
                             <div class="text-end mt-4">
-                                <button type="submit" class="btn btn-primary btn-lg px-4 animate__animated animate__pulse">
-                                    <i class="fas fa-save me-2"></i> Enregistrer les notes
-                                </button>
+                                <center><button type="submit"
+                                        class="btn btn-primary btn-lg px-4 animate__animated animate__pulse"
+                                        style="max-width: 100%;">
+                                        <i class="fas fa-save me-2"></i> Enregistrer les notes
+                                    </button>
+                                    <a href="{{ route('professeur.statistiques.show', ['anneeId' => $annee->id, 'classeId' => $classe->id]) }}"
+                                        class="btn btn-info btn-lg px-4 me-2" style="max-width: 100%;">
+                                        <i class="fas fa-chart-bar me-2"></i> &nbsp; Voir les statistiques
+                                    </a>
+                                </center>
                             </div>
                         </form>
                     @endif
@@ -187,6 +203,13 @@
         .average-cell {
             font-weight: bold;
             background-color: #f8f9fa;
+        }
+
+        @media (max-width: 768px) {
+            .btn {
+                padding-top: 10px;
+                margin-top: 10px;
+            }
         }
     </style>
 @endsection

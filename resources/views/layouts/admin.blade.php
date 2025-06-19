@@ -118,6 +118,12 @@
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.users.index') }}">
+                    <i class="fas fa-users-cog me-2"></i>Gestion des Utilisateurs
+                </a>
+            </li>
+
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                     data-bs-toggle="dropdown" aria-expanded="false">
@@ -125,6 +131,11 @@
                 </a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="#">Profil</a></li>
+                    <li>
+                        <a href="{{ route('profile.admin.edit') }}" class="dropdown-item">
+                            <i class="fas fa-user-edit me-2"></i> Modifier mon profil
+                        </a>
+                    </li>
                     <li>
                         <hr class="dropdown-divider" />
                     </li>

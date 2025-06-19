@@ -16,8 +16,9 @@
                         <h6 class="m-0 font-weight-bold text-primary">Profil</h6>
                     </div>
                     <div class="card-body text-center">
-                        <img src="{{ asset('images/default-avatar.png') }}" class="rounded-circle mb-3" width="150"
-                            height="150">
+                        <img src="{{ $user->photo ? asset('storage/' . $user->photo) : asset('images/default-avatar.png') }}"
+                            class="rounded-circle mb-3" width="150" height="150">
+
                         <h4>{{ $user->prenom }} {{ $user->nom }}</h4>
                         <p class="text-muted">{{ $user->email }}</p>
 
