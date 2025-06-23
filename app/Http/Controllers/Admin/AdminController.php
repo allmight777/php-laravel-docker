@@ -57,12 +57,21 @@ class AdminController extends Controller
     /**
      * Liste des utilisateurs en attente
      */
-    public function pendingUsers()
+    public function pendingUsers(Request $request)
     {
-        $users = User::where('is_active', false)
+        $query = User::where('is_active', false)
             ->with(['eleve.classe', 'eleve.anneeAcademique', 'professeur.matieres'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->orderBy('created_at', 'desc');
+
+        if ($request->has('type')) {
+            if ($request->type === 'eleve') {
+                $query->whereHas('eleve');
+            } elseif ($request->type === 'professeur') {
+                $query->whereHas('professeur');
+            }
+        }
+
+        $users = $query->paginate(10);
 
         return view('admin.users.pending', compact('users'));
     }
@@ -88,9 +97,10 @@ class AdminController extends Controller
         $user = User::with([
             'eleve.classe',
             'eleve.anneeAcademique',
-            'professeur.matieres',
-        ])
-            ->findOrFail($id);
+            'affectations.classe',
+            'affectations.matiere',
+            'affectations.anneeAcademique',
+        ])->findOrFail($id);
 
         return view('admin.users.show', compact('user'));
     }
@@ -135,8 +145,7 @@ class AdminController extends Controller
 
         $user->delete();
 
-        return back()
-            ->with('success', "Le compte de {$fullName} a été rejeté.");
+        return back()->with('success', "Le compte de {$fullName} a été rejeté.");
     }
 
     /**
@@ -158,12 +167,6 @@ class AdminController extends Controller
     {
         return trim("{$user->prenom} {$user->nom}");
     }
-
-
-
-
-
-
 
     // Gestion des affectations professeurs/classes/matières par année scolaires
     public function affectation($id)
@@ -189,17 +192,93 @@ class AdminController extends Controller
         return view('admin.professeurs.affectation', compact('professeur', 'annees', 'classes'));
     }
 
+    // affectation profs
+
     public function storeAffectation(Request $request, $id)
     {
         $professeur = User::findOrFail($id);
         $annee_id = $request->annee_scolaire_id;
 
+        $errors = [];
+
         foreach ($request->affectations ?? [] as $combo) {
             [$classe_id, $matiere_id] = explode('-', $combo);
 
+            $matiere = Matiere::find($matiere_id);
+            $classe = Classe::find($classe_id);
+            $annee = AnneeAcademique::find($annee_id);
+
             // Vérifier si l'affectation existe déjà
-            $exists = Affectation::where('professeur_id', $professeur->id)
-                ->where('classe_id', $classe_id)
+            $exists = Affectation::where('classe_id', $classe_id)
+                ->where('matiere_id', $matiere_id)
+                ->where('annee_academique_id', $annee_id)
+                ->exists();
+
+            if ($exists) {
+                $matiereNom = $matiere ? $matiere->nom : "ID $matiere_id";
+                $classeNom = $classe ? $classe->nom : "ID $classe_id";
+                $anneeLibelle = $annee ? $annee->libelle : "ID $annee_id";
+
+                $errors[] = "La matière « $matiereNom » est déjà attribuée pour la classe « $classeNom » pour l'année scolaire « $anneeLibelle ».";
+            } else {
+                Affectation::create([
+                    'professeur_id' => $professeur->id,
+                    'classe_id' => $classe_id,
+                    'matiere_id' => $matiere_id,
+                    'annee_academique_id' => $annee_id,
+                ]);
+            }
+        }
+
+        if (count($errors) > 0) {
+            return redirect()->back()->withErrors($errors);
+        }
+
+        return redirect()->route('professeurs.index')->with('success', 'Affectations enregistrées');
+    }
+
+    // Update affectation
+    public function editAffectation($id)
+    {
+        $professeur = User::findOrFail($id);
+
+        // Récupérer toutes les années académiques
+        $annees = AnneeAcademique::all();
+
+        // Récupérer les affectations groupées par année scolaire pour ce professeur
+        $affectations = Affectation::with(['classe', 'matiere'])
+            ->where('professeur_id', $professeur->id)
+            ->get()
+            ->groupBy('annee_academique_id');
+
+        // Sélectionner une année par défaut (la plus récente, ou la première dans la liste)
+        $anneeSelectionneeId = $annees->last()?->id ?? $annees->first()?->id;
+
+        return view('admin.professeurs.editAffectation', compact(
+            'professeur',
+            'annees',
+            'affectations',
+            'anneeSelectionneeId'
+        ));
+    }
+
+    public function updateAffectation(Request $request, $id)
+    {
+        $professeur = User::findOrFail($id);
+        $annee_id = $request->annee_academique_id;
+
+        // Supprimer toutes les affectations existantes pour ce prof et cette année
+        Affectation::where('professeur_id', $professeur->id)
+            ->where('annee_academique_id', $annee_id)
+            ->delete();
+
+        $affectations = $request->input('affectations', []);
+
+        foreach ($affectations as $combo) {
+            [$classe_id, $matiere_id] = explode('-', $combo);
+
+            // Vérifier si cette matière est déjà affectée à un autre prof pour cette année
+            $exists = Affectation::where('classe_id', $classe_id)
                 ->where('matiere_id', $matiere_id)
                 ->where('annee_academique_id', $annee_id)
                 ->exists();
@@ -214,57 +293,8 @@ class AdminController extends Controller
             }
         }
 
-        return redirect()->route('professeurs.index')->with('success', 'Affectations enregistrées');
-    }
-    // MOdifier les affcetations
-
-    public function editAffectation($id)
-    {
-        $professeur = User::findOrFail($id);
-        $affectations = Affectation::where('professeur_id', $professeur->id)
-            ->with(['classe', 'matiere', 'anneeAcademique'])
-            ->get()
-            ->groupBy('annee_academique_id');
-
-        $annees = AnneeAcademique::all();
-        $classes = Classe::all();
-        $matieres = Matiere::all();
-
-        return view('admin.professeurs.editAffectation', compact('professeur', 'affectations', 'annees', 'classes', 'matieres'));
-    }
-
-    // Update
-    public function updateAffectation(Request $request, $id)
-    {
-        $professeur = User::findOrFail($id);
-
-        // Suppression des anciennes affectations
-        Affectation::where('professeur_id', $professeur->id)
-            ->where('annee_academique_id', $request->annee_academique_id)
-            ->delete();
-
-        if ($request->has('affectations')) {
-            $affectations = array_unique($request->affectations);
-
-            foreach ($affectations as $combo) {
-                [$classe_id, $matiere_id] = explode('-', $combo);
-                Affectation::create([
-                    'professeur_id' => $professeur->id,
-                    'classe_id' => $classe_id,
-                    'matiere_id' => $matiere_id,
-                    'annee_academique_id' => $request->annee_academique_id,
-                ]);
-            }
-        }
-
         return redirect()->route('professeurs.index')->with('success', 'Affectations mises à jour avec succès.');
     }
-
-
-
-
-
-
 
     // Gestion affectation eleves par annee et classe
 
@@ -329,11 +359,6 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Élèves affectés avec succès.');
     }
 
-
-
-
-
-
     // Liste des années scolaires
     public function anneesScolaires()
     {
@@ -347,11 +372,6 @@ class AdminController extends Controller
     {
         return view('admin.anneesScolaires.create');
     }
-
-
-
-
-
 
     // Enregistrer nouvelle année scolaire
     public function storeAnnee(Request $request)
@@ -367,10 +387,6 @@ class AdminController extends Controller
         return redirect()->route('admin.annees.index')->with('success', 'Année scolaire créée avec succès.');
     }
 
-
-
-
-
     // Formulaire édition année scolaire
     public function editAnnee($id)
     {
@@ -378,10 +394,6 @@ class AdminController extends Controller
 
         return view('admin.anneesScolaires.edit', compact('annee'));
     }
-
-
-
-
 
     // Mise à jour année scolaire
     public function updateAnnee(Request $request, $id)
@@ -397,9 +409,6 @@ class AdminController extends Controller
         return redirect()->route('admin.annees.index')->with('success', 'Année scolaire mise à jour avec succès.');
     }
 
-
-
-
     // Supprimer annee
 
     public function destroyAnnee($id)
@@ -409,10 +418,6 @@ class AdminController extends Controller
 
         return redirect()->route('admin.annees.index')->with('success', 'Année scolaire supprimée avec succès.');
     }
-
-
-
-
 
     // Gestin des comptes utilisateurs (edition)
 

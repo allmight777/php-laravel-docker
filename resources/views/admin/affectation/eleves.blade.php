@@ -2,8 +2,12 @@
 
 @section('content')
     <div class="container py-4">
-        <h3 class="mb-4">Affecter les élèves actifs à la classe <strong>{{ $classe->nom }}</strong> pour
-            l'année <strong>{{ $annee->libelle }}</strong></h3>
+<div class="mb-4 text-center">
+    <h2 class="fw-bold text-white bg-primary p-3 rounded shadow-sm">
+        👨‍🎓 Affecter les élèves à la classe <span class="text-dark">{{ $classe->nom }}</span><br>
+        pour l’année scolaire <span class="text-dark">{{ $annee->libelle }}</span>
+    </h2>
+</div>
 
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">

@@ -2,32 +2,43 @@
 
 @section('content')
     <div class="container py-4">
-        <h3 class="mb-4 text-primary fw-bold">Choisir une année scolaire</h3>
+        <div class="mb-4 text-center">
+            <h2 class="fw-bold text-white bg-primary p-3 rounded shadow-sm">
+                🎓 Choisissez une année scolaire à affecter
+            </h2>
+        </div>
 
-        <div class="row g-3">
-            @foreach ($annees as $annee)
-                <div class="col-md-4 col-sm-6">
-                    <a href="{{ route('admin.affectation.classes', $annee->id) }}" class="text-decoration-none">
-                        <div class="card shadow-sm border-0 h-100 hover-scale">
-                            <div class="card-body d-flex align-items-center justify-content-center">
-                                <h5 class="card-title text-center mb-0 text-dark">{{ $annee->libelle }}</h5>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            @endforeach
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-0">
+                <table class="table table-hover table-bordered align-middle mb-0">
+                    <thead class="table-primary text-center">
+                        <tr>
+                            <th style="width: 10%">Ordre</th>
+                            <th>Année scolaire</th>
+                            <th style="width: 20%">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @foreach ($annees as $index => $annee)
+                            <tr>
+                                <td class="fw-bold">{{ $index + 1 }}</td>
+                                <td class="text-dark fs-5">{{ $annee->libelle }}</td>
+                                <td>
+                                    <a href="{{ route('admin.affectation.classes', $annee->id) }}"
+                                        class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-arrow-right"></i> Voir les classes
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                        @if ($annees->isEmpty())
+                            <tr>
+                                <td colspan="3" class="text-muted">Aucune année scolaire disponible.</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
-    <style>
-        .hover-scale {
-            transition: transform 0.3s ease;
-            cursor: pointer;
-        }
-
-        .hover-scale:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-    </style>
 @endsection

@@ -7,5 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class AnneeAcademique extends Model
 {
     protected $table = 'annee_academique';
+
     protected $fillable = ['libelle'];
+
+    public function periode()
+    {
+        return $this->hasMany(PeriodeAcademique::class);
+    }
 }

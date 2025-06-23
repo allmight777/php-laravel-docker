@@ -13,9 +13,7 @@ class DatabaseSeeder extends Seeder
             AdministrationSeeder::class,
             ClassesSeeder::class,
             MatieresSeeder::class,
-            AnneeSeeder::class,
             ClasseMatiereProfesseurSeeder::class,
-            PeriodeAcademiqueSeeder::class,
         ]);
     }
 }

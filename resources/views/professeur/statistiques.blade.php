@@ -34,7 +34,7 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="matiere_id" class="form-label">Matière (optionnel)</label>
+                            <label for="matiere_id" class="form-label">Matières</label>
                             <select name="matiere_id" id="matiere_id" class="form-select" onchange="this.form.submit()">
                                 <option value="">...</option>
                                 @foreach ($affectations as $affectation)
@@ -126,15 +126,15 @@
                                             <div class="col-md-4">
                                                 <div class="card mb-3">
                                                     <div class="card-body">
-                                                        <h5 class="card-title">Notes Extrêmes</h5>
+                                                        <h5 class="card-title">Moyennes Extrêmes</h5>
                                                         <div class="d-flex justify-content-between mb-3">
                                                             <div class="text-center">
-                                                                <h6>Meilleure note</h6>
+                                                                <h6>Meilleure moyenne</h6>
                                                                 <h3 class="text-success">
                                                                     {{ $statistics->meilleure_note }}/20</h3>
                                                             </div>
                                                             <div class="text-center">
-                                                                <h6>Pire note</h6>
+                                                                <h6>Pire moyenne</h6>
                                                                 <h3 class="text-danger">{{ $statistics->pire_note }}/20
                                                                 </h3>
                                                             </div>

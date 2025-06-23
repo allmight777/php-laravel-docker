@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\PeriodeAcademiqueController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ClasseController;
@@ -52,6 +53,14 @@ Route::middleware('auth')->group(function () {
         Route::get('annees-scolaires/{id}/edit', [AdminController::class, 'editAnnee'])->name('annees.edit');
         Route::put('annees-scolaires/{id}', [AdminController::class, 'updateAnnee'])->name('annees.update');
         Route::delete('annees-scolaires/{id}', [AdminController::class, 'destroyAnnee'])->name('annees.delete');
+
+        // Périodes académiques
+        Route::get('periodes', [PeriodeAcademiqueController::class, 'index'])->name('periodes.index');
+        Route::get('periodes/create', [PeriodeAcademiqueController::class, 'create'])->name('periodes.create');
+        Route::post('periodes', [PeriodeAcademiqueController::class, 'store'])->name('periodes.store');
+        Route::get('periodes/{id}/edit', [PeriodeAcademiqueController::class, 'edit'])->name('periodes.edit');
+        Route::put('periodes/{id}', [PeriodeAcademiqueController::class, 'update'])->name('periodes.update');
+        Route::delete('periodes/{id}', [PeriodeAcademiqueController::class, 'destroy'])->name('periodes.destroy');
 
         // Affectation classes/matières par année scolaire
         Route::get('professeurs/{professeur}/affectation', [AdminController::class, 'affectation'])->name('professeurs.affectation');
