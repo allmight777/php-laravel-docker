@@ -1,106 +1,113 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    /* Style général */
-.bulletin-container {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-}
+    <style>
+        /* Style général */
+        .bulletin-container {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
 
-/* En-tête du bulletin */
-.bulletin-header {
-    background: linear-gradient(135deg, #3498db, #2c3e50);
-    color: white;
-    padding: 20px;
-    text-align: center;
-    margin-bottom: 30px;
-}
+        /* En-tête du bulletin */
+        .bulletin-header {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-.bulletin-header h2 {
-    margin: 0;
-    font-weight: 700;
-}
+        .bulletin-header h2 {
+            margin: 0;
+            font-weight: 700;
+        }
 
-/* Tableau des notes */
-.bulletin-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin-bottom: 30px;
-}
+        /* Tableau des notes */
+        .bulletin-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 30px;
+        }
 
-.bulletin-table th {
-    background-color: #343a40;
-    color: white;
-    padding: 12px;
-    text-align: center;
-    position: sticky;
-    top: 0;
-}
+        .bulletin-table th {
+            background-color: #343a40;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+        }
 
-.bulletin-table td {
-    padding: 10px;
-    border-bottom: 1px solid #dee2e6;
-    vertical-align: middle;
-}
+        .bulletin-table td {
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
 
-.bulletin-table tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
+        .bulletin-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
 
-.bulletin-table tr:hover {
-    background-color: #e9ecef;
-    transition: background-color 0.3s;
-}
+        .bulletin-table tr:hover {
+            background-color: #e9ecef;
+            transition: background-color 0.3s;
+        }
 
-/* Badges */
-.badge {
-    font-size: 0.9em;
-    padding: 5px 10px;
-    border-radius: 50px;
-    font-weight: 600;
-}
+        /* Badges */
+        .badge {
+            font-size: 0.9em;
+            padding: 5px 10px;
+            border-radius: 50px;
+            font-weight: 600;
+        }
 
-/* Résultats */
-.results-container {
-    background-color: white;
-    border-radius: 8px;
-    padding: 20px;
-    margin-top: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+        /* Résultats */
+        .results-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-.results-container p {
-    font-size: 1.1em;
-    margin-bottom: 10px;
-}
+        .results-container p {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
 
-/* Animation */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
 
-.bulletin-section {
-    animation: fadeIn 0.6s ease-out forwards;
-}
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .bulletin-table {
-        display: block;
-        overflow-x: auto;
-    }
-    
-    .bulletin-header h2 {
-        font-size: 1.5em;
-    }
-}
-</style>
+        .bulletin-section {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .bulletin-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .bulletin-header h2 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
     <br><br><br>
     <div class="container py-5">
         @if ($bulletins->isEmpty())
@@ -182,62 +189,65 @@
                 </div>
             @endforeach
         @endif
+        <a href="{{ route('reclamations.create') }}" class="btn btn-warning">
+            <i class="fas fa-exclamation-triangle"></i> Faire une réclamation
+        </a>
     </div>
-    @section('scripts')
-<script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Animation au chargement
-    const sections = document.querySelectorAll('.bulletin-section');
-    sections.forEach((section, index) => {
-        section.style.animationDelay = `${index * 0.1}s`;
-    });
+@section('scripts')
+    <script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation au chargement
+            const sections = document.querySelectorAll('.bulletin-section');
+            sections.forEach((section, index) => {
+                section.style.animationDelay = `${index * 0.1}s`;
+            });
 
-    // Tooltip pour les notes
-    const badges = document.querySelectorAll('.badge');
-    badges.forEach(badge => {
-        badge.addEventListener('mouseenter', function() {
-            const note = parseFloat(this.textContent);
-            let appreciation = '';
-            
-            if (note >= 16) appreciation = 'Excellent';
-            else if (note >= 14) appreciation = 'Très bien';
-            else if (note >= 12) appreciation = 'Bien';
-            else if (note >= 10) appreciation = 'Passable';
-            else appreciation = 'Insuffisant';
+            // Tooltip pour les notes
+            const badges = document.querySelectorAll('.badge');
+            badges.forEach(badge => {
+                badge.addEventListener('mouseenter', function() {
+                    const note = parseFloat(this.textContent);
+                    let appreciation = '';
 
-            this.setAttribute('title', `${appreciation} (${note}/20)`);
+                    if (note >= 16) appreciation = 'Excellent';
+                    else if (note >= 14) appreciation = 'Très bien';
+                    else if (note >= 12) appreciation = 'Bien';
+                    else if (note >= 10) appreciation = 'Passable';
+                    else appreciation = 'Insuffisant';
+
+                    this.setAttribute('title', `${appreciation} (${note}/20)`);
+                });
+            });
+
+            // Tri des matières (optionnel)
+            const sortButton = document.createElement('button');
+            sortButton.className = 'btn btn-outline-primary mb-3';
+            sortButton.textContent = 'Trier par moyenne';
+            sortButton.addEventListener('click', function() {
+                const table = document.querySelector('.bulletin-table tbody');
+                const rows = Array.from(table.querySelectorAll('tr'));
+
+                rows.sort((a, b) => {
+                    const aNote = parseFloat(a.querySelector('td:nth-child(7)').textContent);
+                    const bNote = parseFloat(b.querySelector('td:nth-child(7)').textContent);
+                    return bNote - aNote;
+                });
+
+                rows.forEach(row => table.appendChild(row));
+            });
+
+            document.querySelector('.container.py-5').prepend(sortButton);
+
+            // Impression du bulletin
+            const printButton = document.createElement('button');
+            printButton.className = 'btn btn-outline-secondary mb-3 ms-2';
+            printButton.innerHTML = '<i class="fas fa-print"></i> Imprimer';
+            printButton.addEventListener('click', function() {
+                window.print();
+            });
+            document.querySelector('.container.py-5').prepend(printButton);
         });
-    });
-
-    // Tri des matières (optionnel)
-    const sortButton = document.createElement('button');
-    sortButton.className = 'btn btn-outline-primary mb-3';
-    sortButton.textContent = 'Trier par moyenne';
-    sortButton.addEventListener('click', function() {
-        const table = document.querySelector('.bulletin-table tbody');
-        const rows = Array.from(table.querySelectorAll('tr'));
-        
-        rows.sort((a, b) => {
-            const aNote = parseFloat(a.querySelector('td:nth-child(7)').textContent);
-            const bNote = parseFloat(b.querySelector('td:nth-child(7)').textContent);
-            return bNote - aNote;
-        });
-        
-        rows.forEach(row => table.appendChild(row));
-    });
-
-    document.querySelector('.container.py-5').prepend(sortButton);
-
-    // Impression du bulletin
-    const printButton = document.createElement('button');
-    printButton.className = 'btn btn-outline-secondary mb-3 ms-2';
-    printButton.innerHTML = '<i class="fas fa-print"></i> Imprimer';
-    printButton.addEventListener('click', function() {
-        window.print();
-    });
-    document.querySelector('.container.py-5').prepend(printButton);
-});
-</script>
+    </script>
 @endsection
 @endsection

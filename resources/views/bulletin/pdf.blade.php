@@ -150,7 +150,6 @@
 
 <body>
     <div class="container">
-
         <div class="header no-break">
             <h1>BULLETIN SCOLAIRE</h1>
             <p>Année Scolaire: {{ $annee->libelle }}</p>
@@ -168,13 +167,15 @@
         @else
             @php
                 $groupes = $bulletins->groupBy('periode_id');
+                $totalPeriodes = count($groupes);
+                $sommeMoyennesPeriodes = 0;
             @endphp
 
             @foreach ($groupes as $periodeId => $bulletinsParMatiere)
                 @php
                     $periode = $bulletinsParMatiere->first()->periode;
-                    $moyennePeriodique = $bulletinsParMatiere->first()->moyenne_periodique ?? 0;
-                    $rangPeriodique = $bulletinsParMatiere->first()->rang_periodique ?? '-';
+                    $totalCoefficients = 0;
+                    $totalMoyennesCoeff = 0;
                 @endphp
 
                 <h4 class="period-title no-break">Période : {{ $periode->nom }}</h4>
@@ -196,56 +197,59 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @php
-                            $totalCoefficients = 0;
-                            $totalMoyennesCoeff = 0;
-                        @endphp
-
                         @foreach ($bulletinsParMatiere as $bulletin)
                             @php
-                                $noteData = $notes[$bulletin->periode_id][$bulletin->matiere_id];
+                                $noteData = $notes[$bulletin->periode_id][$bulletin->matiere_id] ?? [
+                                    'interro1' => null,
+                                    'interro2' => null,
+                                    'interro3' => null,
+                                    'devoir1' => null,
+                                    'devoir2' => null,
+                                    'moy_interros' => 0,
+                                    'moy_devoirs' => 0,
+                                    'moyenne' => 0,
+                                    'coefficient' => 1,
+                                    'moyenne_coeff' => 0
+                                ];
+                                
                                 $totalCoefficients += $noteData['coefficient'];
                                 $totalMoyennesCoeff += $noteData['moyenne_coeff'];
                             @endphp
                             <tr>
                                 <td class="text-start">{{ $bulletin->matiere->nom }}</td>
-
-
                                 <td>{{ $noteData['interro1'] ? number_format($noteData['interro1'], 2) : '-' }}</td>
                                 <td>{{ $noteData['interro2'] ? number_format($noteData['interro2'], 2) : '-' }}</td>
                                 <td>{{ $noteData['interro3'] ? number_format($noteData['interro3'], 2) : '-' }}</td>
                                 <td class="fw-bold">{{ number_format($noteData['moy_interros'], 2) }}</td>
-
                                 <td>{{ $noteData['devoir1'] ? number_format($noteData['devoir1'], 2) : '-' }}</td>
                                 <td>{{ $noteData['devoir2'] ? number_format($noteData['devoir2'], 2) : '-' }}</td>
                                 <td class="fw-bold">{{ number_format($noteData['moy_devoirs'], 2) }}</td>
-
-
                                 <td class="fw-bold">{{ number_format($noteData['moyenne'], 2) }}</td>
                                 <td>{{ $noteData['coefficient'] }}</td>
                                 <td class="fw-bold">{{ number_format($noteData['moyenne_coeff'], 2) }}</td>
                             </tr>
                         @endforeach
 
+                        @php
+                            $moyennePeriodique = $totalCoefficients > 0 ? $totalMoyennesCoeff / $totalCoefficients : 0;
+                            $sommeMoyennesPeriodes += $moyennePeriodique;
+                        @endphp
 
                         <tr style="background-color: #f0f8ff;">
                             <td colspan="8" class="text-end fw-bold">Totaux :</td>
-                            <td class="fw-bold">{{ number_format($totalMoyennesCoeff / $totalCoefficients, 2) }}</td>
+                            <td class="fw-bold">{{ number_format($moyennePeriodique, 2) }}</td>
                             <td class="fw-bold">{{ $totalCoefficients }}</td>
                             <td class="fw-bold">{{ number_format($totalMoyennesCoeff, 2) }}</td>
                         </tr>
                     </tbody>
                 </table>
 
-
-
                 <div class="results-summary no-break">
                     <p><strong>Moyenne Générale de la Période :</strong>
-                        <span
-                            class="badge bg-info">{{ number_format($totalMoyennesCoeff / $totalCoefficients, 2) }}/20</span>
+                        <span class="badge bg-info">{{ number_format($moyennePeriodique, 2) }}/20</span>
                     </p>
                     <p><strong>Rang Général de la Période :</strong>
-                        <span class="badge bg-secondary">{{ $rangPeriodique }}</span>
+                        <span class="badge bg-secondary">{{ $bulletinsParMatiere->first()->rang_periodique ?? '-' }}</span>
                     </p>
                 </div>
 
@@ -254,6 +258,11 @@
                 @endif
             @endforeach
         @endif
+
+        @php
+            $moyenneAnnuelle = $totalPeriodes > 0 ? $sommeMoyennesPeriodes / $totalPeriodes : 0;
+        @endphp
+
         <div class="results-summary no-break">
             <p><strong>Moyenne Annuelle:</strong>
                 <span class="badge bg-primary" style="font-size: 14px;">
@@ -262,19 +271,18 @@
             </p>
             <p><strong>Rang Annuel:</strong>
                 <span class="badge bg-secondary" style="font-size: 14px;">
-                    {{ $rangAnnuel }}
+                    {{ $rangAnnuel ?? '-' }}
                 </span>
             </p>
         </div>
 
         <div>
             <p><strong>Effectif de la classe:</strong> {{ $effectifClasse }} élèves</p>
-            <p><strong>Nombre de périodes:</strong> {{ count($groupes) }}</p>
+            <p><strong>Nombre de périodes:</strong> {{ $totalPeriodes }}</p>
         </div>
     </div>
     <div style="margin-top: 30px; text-align: center; font-size: 10px; color: #7f8c8d;">
         Document généré le {{ now()->format('d/m/Y à H:i') }} - Valable uniquement avec le cachet de l'établissement
-    </div>
     </div>
 </body>
 

@@ -12,6 +12,7 @@ use App\Models\PeriodeAcademique;
 use App\Models\Professeur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf; 
 use Illuminate\Support\Facades\DB;
 
 class ProfesseurController extends Controller
@@ -120,8 +121,288 @@ public function mesClasses($anneeId)
             'selectedPeriodeId'
         ));
     }
+    //
 
-    // Methode pour lenregistrement des notes
+/*public function listeElevesAMigrer($anneeId, $classeId)
+{
+    $classe = Classe::findOrFail($classeId);
+    $annee = AnneeAcademique::findOrFail($anneeId);
+
+    // Élèves admis (moyenne >= 10)
+    $elevesAdmis = Eleve::where('classe_id', $classeId)
+        ->where('annee_academique_id', $anneeId)
+        ->with(['user', 'bulletins' => function ($q) {
+            $q->whereNotNull('moyenne_generale');
+            $q->orderByDesc('periode_id');
+        }])
+        ->get()
+        ->filter(function ($eleve) {
+            return $eleve->bulletins->first()?->moyenne_generale >= 10;
+        })
+        ->map(function ($eleve) {
+            $eleve->moyenne_generale = $eleve->bulletins->first()?->moyenne_generale;
+            return $eleve;
+        });
+
+    // Élèves refusés (moyenne < 10)
+    $elevesRefuses = Eleve::where('classe_id', $classeId)
+        ->where('annee_academique_id', $anneeId)
+        ->with(['user', 'bulletins' => function ($q) {
+            $q->whereNotNull('moyenne_generale');
+            $q->orderByDesc('periode_id');
+        }])
+        ->get()
+        ->filter(function ($eleve) {
+            return $eleve->bulletins->first()?->moyenne_generale < 10;
+        })
+        ->map(function ($eleve) {
+            $eleve->moyenne_generale = $eleve->bulletins->first()?->moyenne_generale;
+            return $eleve;
+        });
+
+    return view('admin.migration.index', compact('classe', 'annee', 'elevesAdmis', 'elevesRefuses'));
+}
+   //
+
+    //methode pour le calcul de la moyenne
+public function calculerMoyenneAnnuelle($anneeId, $classeId)
+{
+    $eleves = Eleve::where('classe_id', $classeId)
+        ->where('annee_academique_id', $anneeId)
+        ->get();
+
+    $periodes = PeriodeAcademique::where('annee_academique_id', $anneeId)->get();
+    $nbPeriodes = $periodes->count();
+
+    foreach ($eleves as $eleve) {
+        $somme = 0;
+
+        foreach ($periodes as $periode) {
+            $bulletin = Bulletin::where('eleve_id', $eleve->id)
+                ->where('periode_id', $periode->id)
+                ->first();
+
+            if ($bulletin && $bulletin->moyenne_periodique !== null) {
+                $somme += $bulletin->moyenne_periodique;
+            }
+        }
+
+        $moyenneGenerale = $nbPeriodes > 0 ? $somme / $nbPeriodes : 0;
+
+        // Mettre à jour tous les bulletins de l’élève pour stocker la moyenne générale
+        Bulletin::where('eleve_id', $eleve->id)
+            ->whereIn('periode_id', $periodes->pluck('id'))
+            ->update(['moyenne_generale' => $moyenneGenerale]);
+    }
+
+    return redirect()->back()->with('success', 'Moyennes annuelles calculées avec succès.');
+}
+
+public function exportRefusesPDF($anneeId, $classeId)
+{
+    $classe = Classe::findOrFail($classeId);
+    $annee = AnneeAcademique::findOrFail($anneeId);
+
+    $elevesRefuses = Eleve::where('classe_id', $classeId)
+        ->where('annee_academique_id', $anneeId)
+        ->with(['user', 'bulletins' => function ($q) {
+            $q->whereNotNull('moyenne_generale');
+            $q->orderByDesc('periode_id');
+        }])
+        ->get()
+        ->filter(function ($eleve) {
+            return $eleve->bulletins->first()?->moyenne_generale < 10;
+        })
+        ->map(function ($eleve) {
+            $eleve->moyenne_generale = $eleve->bulletins->first()?->moyenne_generale;
+            return $eleve;
+        });
+
+    $pdf = Pdf::loadView('admin.migration.refuses_pdf', compact('classe', 'annee', 'elevesRefuses'));
+
+    return $pdf->download("eleves_refuses_{$classe->nom}_{$annee->libelle}.pdf");
+}
+
+public function exportAdmisPDF($anneeId, $classeId)
+{
+    $classe = Classe::findOrFail($classeId);
+    $annee = AnneeAcademique::findOrFail($anneeId);
+
+    $elevesAdmis = Eleve::where('classe_id', $classeId)
+        ->where('annee_academique_id', $anneeId)
+        ->with(['user', 'bulletins' => function ($q) {
+            $q->whereNotNull('moyenne_generale');
+            $q->orderByDesc('periode_id');
+        }])
+        ->get()
+        ->filter(function ($eleve) {
+            return $eleve->bulletins->first()?->moyenne_generale >= 10;
+        })
+        ->map(function ($eleve) {
+            $eleve->moyenne_generale = $eleve->bulletins->first()?->moyenne_generale;
+            return $eleve;
+        });
+
+    $pdf = Pdf::loadView('admin.migration.admis_pdf', compact('classe', 'annee', 'elevesAdmis'));
+
+    return $pdf->download("eleves_admis_{$classe->nom}_{$annee->libelle}.pdf");
+}*/
+public function listeElevesAMigrer($anneeId, $classeId)
+{
+    // Récupération de la classe sans essayer de charger anneeAcademique via la relation
+    $classe = Classe::findOrFail($classeId);
+    
+    // Récupération séparée de l'année académique
+    $annee = AnneeAcademique::findOrFail($anneeId);
+
+    // Le reste de votre méthode reste inchangé
+    $elevesAdmis = Eleve::where('classe_id', $classeId)
+        ->where('annee_academique_id', $anneeId)
+        ->whereHas('bulletins', function($q) {
+            $q->where('moyenne_generale', '>=', 10);
+        })
+        ->with(['user', 'bulletins' => function($q) {
+            $q->latest('periode_id')->limit(1);
+        }])
+        ->get()
+        ->each(function($eleve) {
+            $eleve->moyenne_generale = $eleve->bulletins->first()->moyenne_generale ?? 'N/A';
+        });
+
+    $elevesRefuses = Eleve::where('classe_id', $classeId)
+        ->where('annee_academique_id', $anneeId)
+        ->whereHas('bulletins', function($q) {
+            $q->where('moyenne_generale', '<', 10);
+        })
+        ->with(['user', 'bulletins' => function($q) {
+            $q->latest('periode_id')->limit(1);
+        }])
+        ->get()
+        ->each(function($eleve) {
+            $eleve->moyenne_generale = $eleve->bulletins->first()->moyenne_generale ?? 'N/A';
+        });
+
+    return view('admin.migration.index', compact('classe', 'annee', 'elevesAdmis', 'elevesRefuses'));
+}
+public function calculerMoyenneAnnuelle($anneeId, $classeId)
+{
+    $periodes = PeriodeAcademique::where('annee_academique_id', $anneeId)->get();
+    $nbPeriodes = $periodes->count();
+
+    Eleve::where('classe_id', $classeId)
+        ->where('annee_academique_id', $anneeId)
+        ->with(['bulletins' => function($q) use ($periodes) {
+            $q->whereIn('periode_id', $periodes->pluck('id'));
+        }])
+        ->get()
+        ->each(function($eleve) use ($nbPeriodes) {
+            $moyenneGenerale = $nbPeriodes > 0 
+                ? $eleve->bulletins->avg('moyenne_periodique') 
+                : 0;
+
+            Bulletin::where('eleve_id', $eleve->id)
+                   ->update(['moyenne_generale' => $moyenneGenerale]);
+        });
+
+    return back()->with('success', 'Moyennes annuelles calculées avec succès.');
+}
+
+/*public function exportAdmisPDF($anneeId, $classeId)
+{
+    $classe = Classe::findOrFail($classeId);
+    $annee = AnneeAcademique::findOrFail($anneeId);
+
+    $eleves = Eleve::where('classe_id', $classeId)
+        ->where('annee_academique_id', $anneeId)
+        ->whereHas('bulletins', function($q) {
+            $q->where('moyenne_generale', '>=', 10);
+        })
+        ->with(['user', 'bulletins' => function($q) {
+            $q->latest('periode_id')->limit(1);
+        }])
+        ->get()
+        ->each(function($eleve) {
+            $eleve->moyenne_generale = $eleve->bulletins->first()->moyenne_generale ?? 'N/A';
+        });
+
+    $pdf = Pdf::loadView('admin.migration.admis_pdf', compact('classe', 'annee', 'eleves'));
+    return $pdf->download("eleves_admis_{$classe->nom}_{$annee->libelle}.pdf");
+}
+
+public function exportRefusesPDF($anneeId, $classeId)
+{
+    $classe = Classe::findOrFail($classeId);
+    $annee = AnneeAcademique::findOrFail($anneeId);
+
+    $eleves = Eleve::where('classe_id', $classeId)
+        ->where('annee_academique_id', $anneeId)
+        ->whereHas('bulletins', function($q) {
+            $q->where('moyenne_generale', '<', 10);
+        })
+        ->with(['user', 'bulletins' => function($q) {
+            $q->latest('periode_id')->limit(1);
+        }])
+        ->get()
+        ->each(function($eleve) {
+            $eleve->moyenne_generale = $eleve->bulletins->first()->moyenne_generale ?? 'N/A';
+        });
+
+    $pdf = Pdf::loadView('admin.migration.refuses_pdf', compact('classe', 'annee', 'eleves'));
+    return $pdf->download("eleves_refuses_{$classe->nom}_{$annee->libelle}.pdf");
+}*/
+public function exportAdmisPDF($anneeId, $classeId)
+{
+    $classe = Classe::findOrFail($classeId);
+    $annee = AnneeAcademique::findOrFail($anneeId);
+
+    $eleves = Eleve::where('classe_id', $classeId)
+        ->whereHas('bulletins', function($q) {
+            $q->where('moyenne_generale', '>=', 10);
+        })
+        ->with(['user', 'bulletins' => function($q) {
+            $q->latest('periode_id')->limit(1);
+        }])
+        ->get()
+        ->each(function($eleve) {
+            $eleve->moyenne_generale = $eleve->bulletins->first()->moyenne_generale ?? 'N/A';
+        });
+
+    $pdf = Pdf::loadView('admin.migration.admis_pdf', [
+        'classe' => $classe,
+        'annee' => $annee,
+        'elevesAdmis' => $eleves 
+    ]);
+    
+    return $pdf->download("eleves_admis_{$classe->nom}_{$annee->libelle}.pdf");
+}
+
+public function exportRefusesPDF($anneeId, $classeId)
+{
+    $classe = Classe::findOrFail($classeId);
+    $annee = AnneeAcademique::findOrFail($anneeId);
+
+    $eleves = Eleve::where('classe_id', $classeId)
+        ->whereHas('bulletins', function($q) {
+            $q->where('moyenne_generale', '<', 10);
+        })
+        ->with(['user', 'bulletins' => function($q) {
+            $q->latest('periode_id')->limit(1);
+        }])
+        ->get()
+        ->each(function($eleve) {
+            $eleve->moyenne_generale = $eleve->bulletins->first()->moyenne_generale ?? 'N/A';
+        });
+
+    $pdf = Pdf::loadView('admin.migration.refuses_pdf', [
+        'classe' => $classe,
+        'annee' => $annee,
+        'elevesRefuses' => $eleves,
+    ]);
+    
+    return $pdf->download("eleves_refuses_{$classe->nom}_{$annee->libelle}.pdf");
+}
+
+    // Methode pour enregistrement des notes
 
     public function saisirNotes(Request $request)
     {
@@ -207,6 +488,7 @@ public function mesClasses($anneeId)
             $this->updateRanks($request->periode_id, $request->matiere_id);
             $this->calculatePeriodicAverages($request->periode_id, $request->classe_id);
             $this->calculatePeriodicRanks($request->periode_id, $request->classe_id);
+            $this->calculerMoyenneAnnuelle($request->$anneeId,$request-> $classeId);
 
         });
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\BulletinController;
 use App\Http\Controllers\ClasseController;
+use App\Http\Controllers\ClassController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfesseurController;
 use App\Http\Controllers\UserController;
@@ -97,6 +98,34 @@ Route::get('/bulletins/{annee_academique_id}', [BulletinController::class, 'show
 
 Route::get('/bulletin/{annee_academique_id}/download', [BulletinController::class, 'downloadBulletin'])
     ->name('bulletin.download');
+ 
+// Migration
+Route::get('/admin/classes', [AdminController::class, 'showClasses'])->name('admin.classes');
+Route::get('/admin/classes/{anneeId}/{classeId}/eleves', [AdminController::class, 'showEleves'])->name('admin.classes.eleves');
+Route::get('/admin/classes/{anneeId}/{classeId}/migration', [AdminController::class, 'migrationPage'])->name('admin.classes.migration');
+Route::post('/admin/classes/{anneeId}/{classeId}/migrer', [AdminController::class, 'migrerEleves'])->name('admin.classes.migrer');
 
+// Migration des élèves
+Route::get('/admin/migration/{anneeId}/{classeId}', [ProfesseurController::class, 'listeElevesAMigrer'])->name('migration.index');
+Route::post('/admin/migration/calcule/{anneeId}/{classeId}', [ProfesseurController::class, 'calculerMoyenneAnnuelle'])->name('migration.calcule');
+Route::get('/migration/{anneeId}/{classeId}/admis/pdf', [ProfesseurController::class, 'exportAdmisPDF'])->name('migration.export.admis');
+Route::get('/migration/{anneeId}/{classeId}/refuses/pdf', [ProfesseurController::class, 'exportRefusesPDF'])->name('migration.export.refuses');
+
+Route::get('/admin/resultats', [AdminController::class, 'showResultats'])->name('admin.resultats');
+Route::get('/admin/resultats/{anneeId}', [AdminController::class, 'showClassesForAnnee'])->name('admin.resultats.classes');
+Route::get('/admin/resultats/{anneeId}/{classeId}', [AdminController::class, 'showElevesForResultats'])->name('admin.resultats.eleves');
+
+//Reclamation
+// Pour les élèves
+/*Route::middleware(['auth', 'eleve'])->group(function () {
+    Route::get('/reclamation/create', [ReclamationController::class, 'create'])->name('reclamations.create');
+    Route::post('/reclamation', [ReclamationController::class, 'store'])->name('reclamations.store');
+});
+
+// Pour les professeurs ou admin
+Route::middleware(['auth', 'professeur'])->group(function () {
+    Route::get('/reclamations', [ReclamationController::class, 'index'])->name('reclamations.index');
+    Route::put('/reclamations/{reclamation}/traiter', [ReclamationController::class, 'traiter'])->name('reclamations.traiter');
+});*/
 });
 Auth::routes();

@@ -78,5 +78,38 @@
             </div>
 
         </div>
+
+         <div class="card mb-4">
+            <br>
+            <h5 class="mb-4 text-dark">Resultats fin d'annee</h5>
+
+            <div class="col-md-4 mb-3">
+                <div class="card dashboard-card bg-danger text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-edit card-icon"></i>
+                        <h5 class="card-title">Migrations</h5>
+                        <h3 class="card-text"></h3>
+                        <a href="{{ route('admin.classes') }} " class="btn btn-light btn-sm">Voir</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+         <div class="card mb-4">
+            <br>
+            <h5 class="mb-4 text-dark">Resultats fin d'annee</h5>
+
+            <div class="col-md-4 mb-3">
+                <div class="card dashboard-card bg-danger text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-edit card-icon"></i>
+                        <h5 class="card-title">Migrations</h5>
+                        <h3 class="card-text"></h3>
+                       <a href="{{ route('admin.resultats') }}" class="btn btn-light btn-sm">Voir</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 @endsection

@@ -26,4 +26,13 @@ class Classe extends Model
         ->withTimestamps()
         ->distinct();
     }
+    public function eleves()
+{
+    return $this->hasMany(Eleve::class);
+}
+public function anneeAcademique()
+    {
+        return $this->belongsTo(AnneeAcademique::class, 'annee_academique_id');
+    }
+
 }
