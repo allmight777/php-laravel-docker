@@ -26,6 +26,7 @@
                                 </button>
                             </div>
 
+
                             <form id="register-form" method="POST" action="{{ route('register') }}"
                                 enctype="multipart/form-data">
 
@@ -155,117 +156,56 @@
                                         </div>
                                     </div>
 
-
-                                </div>
-
-                                <div class="col-md-12">
-                                    <label for="photo" class="form-label">Photo de profil</label>
-                                    <input id="photo" type="file"
-                                        class="form-control @error('photo') is-invalid @enderror" name="photo"
-                                        accept="image/jpeg,image/png,image/jpg">
-                                    <small class="text-muted">Formats acceptés : JPEG, PNG. Max 2 Mo.</small>
-                                    @error('photo')
-                                        <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                                    @enderror
-                                </div>
-
-                                <!-- Champs Professeur -->
-                                <div id="teacher-fields"
-                                    style="{{ old('user_type') == 'professeur' ? '' : 'display: none;' }}">
-                                    <div class="col-12">
-                                        <div class="card border-primary mb-3 animate__animated animate__fadeIn">
-                                            <div class="card-header bg-primary text-white">
-                                                <i class="fas fa-chalkboard-teacher me-2"></i> Classes et Matières
-                                                enseignées
-                                            </div>
-                                            <div class="card-body">
-                                                <div id="classes-container">
-
-                                                    <div class="class-selection mb-3">
-                                                        <div class="row g-3">
-                                                            <div class="col-md-6">
-                                                                <label class="form-label">Classe <span
-                                                                        class="text-danger">*</span></label>
-                                                                <select class="form-select classe-select"
-                                                                    name="prof_classes[]">
-                                                                    <option value="">Sélectionner une classe
-                                                                    </option>
-                                                                    @foreach ($classes as $classe)
-                                                                        <option value="{{ $classe->id }}">
-                                                                            {{ $classe->nom }} @if ($classe->serie)
-                                                                                - {{ $classe->serie }}
-                                                                            @endif
-                                                                        </option>
-                                                                    @endforeach
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <label class="form-label">Matières <span
-                                                                        class="text-danger">*</span></label>
-                                                                <div class="matieres-container">
-                                                                    <select class="form-select matiere-select"
-                                                                        name="prof_matieres[0][]" multiple disabled>
-                                                                        <option value="">Sélectionnez d'abord une
-                                                                            classe</option>
-                                                                    </select>
-                                                                    <small class="text-muted">Maintenez Ctrl pour
-                                                                        sélectionner plusieurs matières</small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="mt-2 text-end">
-                                                            <button type="button"
-                                                                class="btn btn-sm btn-danger remove-class-btn"
-                                                                style="display: none;">
-                                                                <i class="fas fa-trash me-1"></i> Supprimer
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="text-end mt-3">
-                                                    <button type="button" id="add-class-btn"
-                                                        class="btn btn-sm btn-success">
-                                                        <i class="fas fa-plus me-1"></i> Ajouter une autre classe
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Termes -->
-                                <div class="col-12 mt-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input @error('terms') is-invalid @enderror"
-                                            type="checkbox" id="terms" name="terms" required
-                                            {{ old('terms') ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="terms">
-                                            Je certifie que les informations fournies sont exactes et j'accepte les
-                                            <a href="#" data-bs-toggle="modal"
-                                                data-bs-target="#termsModal">conditions d'utilisation</a>
-                                        </label>
-                                        @error('terms')
+                                    <div class="col-md-12">
+                                        <label for="photo" class="form-label">Photo de profil</label>
+                                        <input id="photo" type="file"
+                                            class="form-control @error('photo') is-invalid @enderror" name="photo"
+                                            accept="image/jpeg,image/png,image/jpg">
+                                        <small class="text-muted">Formats acceptés : JPEG, PNG. Max 2 Mo.</small>
+                                        @error('photo')
                                             <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                                         @enderror
                                     </div>
-                                </div>
 
-                                <div class="col-12 mt-3">
-                                    <button type="submit" class="btn btn-def w-100 py-3">
-                                        <i class="fas fa-paper-plane me-2"></i> Finaliser l'Inscription
-                                    </button>
-                                </div>
+                                    <!-- Champs Professeur -->
+                                    <div id="teacher-fields"
+                                        style="{{ old('user_type') == 'professeur' ? '' : 'display: none;' }}">
+                                    </div>
 
-                                <div class="col-12 text-center mt-3">
-                                    <p>Déjà inscrit ? <a href="{{ route('login') }}"
-                                            class="text-decoration-underline">Connectez-vous ici</a></p>
+                                    <!-- Conditions -->
+                                    <div class="col-12 mt-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input @error('terms') is-invalid @enderror"
+                                                type="checkbox" id="terms" name="terms" required
+                                                {{ old('terms') ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="terms">
+                                                Je certifie que les informations fournies sont exactes et j'accepte les
+                                                <a href="#" data-bs-toggle="modal"
+                                                    data-bs-target="#termsModal">conditions d'utilisation</a>
+                                            </label>
+                                            @error('terms')
+                                                <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-3">
+                                        <button type="submit" class="btn btn-def w-100 py-3">
+                                            <i class="fas fa-paper-plane me-2"></i> Finaliser l'Inscription
+                                        </button>
+                                    </div>
+
+                                    <div class="col-12 text-center mt-3">
+                                        <p>Déjà inscrit ? <a href="{{ route('login') }}" class="text-decoration-underline">Connectez-vous ici</a></p>
+                                    </div>
                                 </div>
+                            </form>
+
+
                         </div>
-                        </form>
                     </div>
                 </div>
             </div>
-        </div>
         </div>
     </section>
 
@@ -303,8 +243,7 @@
             const teacherFields = document.getElementById('teacher-fields');
             const userTypeField = document.getElementById('user_type');
 
-            // Matières par classe
-            const matieresParClasse = @json($matieresParClasse);
+
 
             studentTab.addEventListener('click', function() {
                 studentTab.classList.add('active');

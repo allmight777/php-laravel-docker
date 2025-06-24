@@ -27,7 +27,7 @@
         </div>
     </section>
 
-    <!-- Features Section -->
+
     <section id="features" class="features-section">
         <div class="container">
             <div class="section-title">

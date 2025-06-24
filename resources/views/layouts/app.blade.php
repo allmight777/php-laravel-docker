@@ -44,6 +44,7 @@
             display: flex;
             justify-content: center;
             width: 100%;
+            height: 50%;
             padding: 20px 0;
         }
 
@@ -56,10 +57,10 @@
 
         .clock {
             position: relative;
-            width: 200px;
-            height: 200px;
+            width: 100px;
+            height: 40px;
             background: #c9d5e0;
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
             border-radius: 30px;
@@ -397,7 +398,193 @@
                     </div>
                 </div>
 
-               
+                <div class="col-lg-3 col-md-12">
+                    <div class="footer-clock-container">
+                        <div class="clock-container">
+                            <div class="clock">
+                                <div class="digits">
+                                    <!-- All 12 hour markers -->
+                                    <span style="--i:0;"><b>12</b></span>
+                                    <span style="--i:1;"><b>1</b></span>
+                                    <span style="--i:2;"><b>2</b></span>
+                                    <span style="--i:3;"><b>3</b></span>
+                                    <span style="--i:4;"><b>4</b></span>
+                                    <span style="--i:5;"><b>5</b></span>
+                                    <span style="--i:6;"><b>6</b></span>
+                                    <span style="--i:7;"><b>7</b></span>
+                                    <span style="--i:8;"><b>8</b></span>
+                                    <span style="--i:9;"><b>9</b></span>
+                                    <span style="--i:10;"><b>10</b></span>
+                                    <span style="--i:11;"><b>11</b></span>
+
+                                    <!-- Minute ticks -->
+                                    <div id="ticks"></div>
+
+                                    <div class="circle" id="hr"><i></i></div>
+                                    <div class="circle" id="min"><i></i></div>
+                                    <div class="circle" id="sec"><i></i></div>
+                                </div>
+                            </div>
+
+                            <div class="digital-clock">
+                                <span id="hours">00</span>:<span id="minutes">00</span>:<span
+                                    id="seconds">00</span>
+                                <span id="ampm">AM</span>
+                            </div>
+
+                            <div class="date-display" id="dateDisplay"></div>
+
+                            <div class="controls">
+                                <button id="formatToggle">12/24 Hour</button>
+                                <button id="themeButton">Toggle Theme</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p class="mb-0">&copy; {{ date('Y') }} {{ config('app.name', 'SchoolConnect') }} - Ministère de
+                    la Défense. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('js/java.js') }}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Clock elements
+            const hrHand = document.querySelector('#hr i');
+            const minHand = document.querySelector('#min i');
+            const secHand = document.querySelector('#sec i');
+            const hoursDisplay = document.querySelector('#hours');
+            const minutesDisplay = document.querySelector('#minutes');
+            const secondsDisplay = document.querySelector('#seconds');
+            const ampmDisplay = document.querySelector('#ampm');
+            const dateDisplay = document.querySelector('#dateDisplay');
+            const formatToggle = document.querySelector('#formatToggle');
+            const themeButton = document.querySelector('#themeButton');
+            const ticksContainer = document.querySelector('#ticks');
+
+            // Settings
+            let is24HourFormat = false;
+            let isDarkTheme = false;
+
+            // Create minute ticks
+            function createTicks() {
+                for (let i = 0; i < 60; i++) {
+                    const tick = document.createElement('div');
+                    tick.className = 'tick';
+
+                    if (i % 5 === 0) {
+                        tick.classList.add('main');
+                    }
+                    tick.style.transform = `rotate(${i * 6}deg) translateY(-70px)`;
+                    ticksContainer.appendChild(tick);
+                }
+            }
+
+            // Update clock function
+            function updateClock() {
+                const now = new Date();
+
+                // Analog clock
+                const hours = now.getHours();
+                const minutes = now.getMinutes();
+                const seconds = now.getSeconds();
+                const milliseconds = now.getMilliseconds();
+
+                // Smooth movement for analog hands
+                const smoothSeconds = seconds + milliseconds / 1000;
+                const smoothMinutes = minutes + smoothSeconds / 60;
+                const smoothHours = (hours % 12) + smoothMinutes / 60;
+
+                const hrRotation = smoothHours * 30;
+                const minRotation = smoothMinutes * 6;
+                const secRotation = smoothSeconds * 6;
+
+                hrHand.style.transform = `rotate(${hrRotation}deg)`;
+                minHand.style.transform = `rotate(${minRotation}deg)`;
+                secHand.style.transform = `rotate(${secRotation}deg)`;
+
+                // Digital clock
+                let displayHours = hours;
+                let ampm = 'AM';
+
+                if (!is24HourFormat) {
+                    if (displayHours >= 12) {
+                        ampm = 'PM';
+                        if (displayHours > 12) {
+                            displayHours -= 12;
+                        }
+                    }
+                    if (displayHours === 0) {
+                        displayHours = 12;
+                    }
+                    ampmDisplay.style.display = 'block';
+                } else {
+                    ampmDisplay.style.display = 'none';
+                }
+
+                hoursDisplay.textContent = displayHours.toString().padStart(2, '0');
+                minutesDisplay.textContent = minutes.toString().padStart(2, '0');
+                secondsDisplay.textContent = seconds.toString().padStart(2, '0');
+                ampmDisplay.textContent = ampm;
+
+                // Date display
+                const options = {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                };
+                dateDisplay.textContent = now.toLocaleDateString(undefined, options);
+
+                // Smooth animation
+                requestAnimationFrame(updateClock);
+            }
+
+            // Toggle time format
+            formatToggle.addEventListener('click', () => {
+                is24HourFormat = !is24HourFormat;
+                formatToggle.textContent = is24HourFormat ? '12 Hour' : '24 Hour';
+            });
+
+            // Toggle theme
+            function toggleTheme() {
+                isDarkTheme = !isDarkTheme;
+                document.body.classList.toggle('dark', isDarkTheme);
+                // Save preference to localStorage
+                localStorage.setItem('clockTheme', isDarkTheme ? 'dark' : 'light');
+            }
+
+            themeButton.addEventListener('click', toggleTheme);
+
+            // Check for saved theme preference
+            function checkThemePreference() {
+                const savedTheme = localStorage.getItem('clockTheme');
+                if (savedTheme === 'dark') {
+                    isDarkTheme = true;
+                    document.body.classList.add('dark');
+                }
+            }
+
+            // Initialize
+            function init() {
+                createTicks();
+                checkThemePreference();
+                updateClock();
+            }
+
+            init();
+        });
+    </script>
+
+
+
 </body>
 
 </html>

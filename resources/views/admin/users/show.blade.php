@@ -16,8 +16,9 @@
                         <h6 class="m-0 font-weight-bold text-primary">Profil</h6>
                     </div>
                     <div class="card-body text-center">
-                        <img src="{{ asset('images/default-avatar.png') }}" class="rounded-circle mb-3" width="150"
-                            height="150">
+                        <img src="{{ $user->photo ? asset('storage/' . $user->photo) : asset('images/default-avatar.png') }}"
+                            class="rounded-circle mb-3" width="150" height="150">
+
                         <h4>{{ $user->prenom }} {{ $user->nom }}</h4>
                         <p class="text-muted">{{ $user->email }}</p>
 
@@ -53,48 +54,17 @@
                     @endif
 
                     <div class="card-body">
-                        @if ($user->eleve)
-                            <h5 class="mb-3"><i class="fas fa-user-graduate me-2"></i>Informations élève</h5>
+                        @if ($user)
+                            <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>Informations utilisateur</h5>
                             <div class="row mb-4">
                                 <div class="col-md-6">
-                                    <p><strong>Classe :</strong> {{ $user->eleve->classe->nom ?? 'Non spécifiée' }}</p>
-                                    <p><strong>Année académique :</strong>
-                                        {{ $user->eleve->anneeAcademique->libelle ?? 'Non spécifiée' }}</p>
+                                    <p><strong>Téléphone :</strong> {{ $user->telephone ?? 'Non spécifié' }}</p>
+                                    <p><strong>Email :</strong> {{ $user->email ?? 'Non spécifié' }}</p>
+                                    <p><strong>Date de naissance :</strong>
+                                        {{ $user->date_de_naissance ? $user->date_de_naissance->format('d/m/Y') : 'Non spécifiée' }}
+                                    </p>
                                 </div>
-                                <p><strong>Date de naissance :</strong>
-                                    {{ $user->date_de_naissance ? date('d/m/Y', strtotime($user->date_de_naissance)) : 'Non spécifiée' }}
-                                </p>
                             </div>
-                        @endif
-
-                        @if ($user->professeur)
-                            <h5 class="mb-3"><i class="fas fa-chalkboard-teacher me-2"></i>Informations professeur</h5>
-                            <div class="row mb-4">
-                                <div class="col-md-6">
-
-                                    <div class="col-md-6">
-                                        <p><strong>Classes gardées :</strong></p>
-                                        <ul>
-                                            @forelse($user->professeur->classes->unique('id') as $classe)
-                                                <li>{{ $classe->nom }}</li>
-                                            @empty
-                                                <li>Aucune classe trouvée</li>
-                                            @endforelse
-
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <p><strong>Matières enseignées :</strong></p>
-                                    <ul>
-                                        @forelse($user->professeur->matieres as $matiere)
-                                            <li>{{ $matiere->nom }}</li>
-                                        @empty
-                                            <li>Aucune matière assignée</li>
-                                        @endforelse
-                                    </ul>
-                                </div>
                         @endif
 
                         <div class="d-flex justify-content-end gap-2">
@@ -112,7 +82,7 @@
                             @if (!$user->is_admin)
                                 <form action="{{ route('admin.users.deactivate', $user->id) }}" method="POST"
                                     class="d-inline"
-                                    onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce compte ?')">
+                                    onsubmit="return confirm('Êtes-vous sûr de vouloir désactiver ce compte ?')">
                                     @csrf
 
                                     <button type="submit" class="btn btn-warning btn-sm">

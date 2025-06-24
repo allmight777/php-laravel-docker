@@ -39,15 +39,6 @@ class RegisterController extends Controller
         if (isset($data['user_type']) && $data['user_type'] === 'eleve') {
             $rules['classe_id'] = ['required', 'exists:classes,id'];
             $rules['annee_academique_id'] = ['required', 'exists:annee_academique,id'];
-        } elseif (isset($data['user_type']) && $data['user_type'] === 'professeur') {
-            $rules['prof_classes'] = ['required', 'array'];
-            $rules['prof_classes.*'] = ['exists:classes,id'];
-
-            $rules['prof_matieres'] = ['required', 'array'];
-            foreach ($data['prof_matieres'] ?? [] as $classeId => $matieres) {
-                $rules["prof_matieres.$classeId"] = ['required', 'array'];
-                $rules["prof_matieres.$classeId.*"] = ['exists:matieres,id'];
-            }
         }
 
         return Validator::make($data, $rules);
@@ -84,24 +75,9 @@ class RegisterController extends Controller
                 'annee_academique_id' => $data['annee_academique_id'],
             ]);
         } elseif ($data['user_type'] === 'professeur') {
-            $professeur = Professeur::create([
+            Professeur::create([
                 'user_id' => $user->id,
             ]);
-
-            foreach ($data['prof_classes'] as $index => $classeId) {
-
-                if (isset($data['prof_matieres'][$index]) && is_array($data['prof_matieres'][$index])) {
-                    foreach ($data['prof_matieres'][$index] as $matiereId) {
-
-                        ClasseMatiereProfesseur::create([
-                            'classe_id' => $classeId,
-                            'matiere_id' => $matiereId,
-                            'professeur_id' => $professeur->id,
-                            'coefficient' => 1,
-                        ]);
-                    }
-                }
-            }
         }
 
         return $user;
@@ -122,24 +98,7 @@ class RegisterController extends Controller
         $classes = Classe::all();
         $annees = AnneeAcademique::all();
 
-        $matieresParClasse = [];
-
-        foreach ($classes as $classe) {
-
-            $matieresParClasse[$classe->id] = ClasseMatiereProfesseur::where('classe_id', $classe->id)
-                ->whereNull('professeur_id')
-                ->with('matiere')
-                ->get()
-                ->map(function ($cmp) {
-                    return [
-                        'id' => $cmp->matiere->id,
-                        'nom' => $cmp->matiere->nom,
-                        'code' => $cmp->matiere->code,
-                    ];
-                })->toArray();
-        }
-
-        return view('auth.register', compact('classes', 'annees', 'matieresParClasse'));
+        return view('auth.register', compact('classes', 'annees'));
     }
 
     protected function registered(Request $request, $user)

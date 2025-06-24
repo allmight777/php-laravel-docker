@@ -12,7 +12,7 @@ class Classe extends Model
     protected $fillable = ['nom', 'code'];
 
     /**
-     * Relation
+     * Relation avec les matières , les matieres lie a la classe
      */
     public function matieres()
     {
@@ -26,6 +26,4 @@ class Classe extends Model
         ->withTimestamps()
         ->distinct();
     }
-
-    
 }

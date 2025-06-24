@@ -11,6 +11,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
     <!-- Custom CSS -->
     <link href="{{ asset('css/admin.css') }}" rel="stylesheet" />
 
@@ -86,10 +88,12 @@
 
     <nav id="sidebar">
         <div class="sidebar-header px-3">
+            <br>
             <h4 class="text-center">
                 <i class="fas fa-user-shield me-2"></i>Admin Panel
             </h4>
         </div>
+        <br><br>
         <ul class="nav flex-column px-2">
             <li class="nav-item">
                 <a class="nav-link active" href="{{ route('admin.dashboard') }}">
@@ -103,18 +107,35 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('admin.annees.index') }}">
-                    <i class="fas fa-user-clock me-2"></i>Modifier/Ajouter années
+                    <i class="fas fa-calendar me-2"></i>Modifier/Ajouter années
+                </a>
+            </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.periodes.index') }}">
+                    <i class="fas fa-calendar-alt me-2"></i>Modifier/Ajouter période
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('professeurs.index') }}">
-                    <i class="fas fa-user-clock me-2"></i>Liste des professeurs
+                    <i class="fas fa-chalkboard-teacher me-2"></i>Affectation professeurs
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.affectation.annees') }}">
+                    <i class="fas fa-user-graduate me-2"></i>Affectation élèves
                 </a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('admin.users.active') }}">
                     <i class="fas fa-users me-2"></i>Utilisateurs actifs
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.users.index') }}">
+                    <i class="fas fa-users-cog me-2"></i>Gestion des Utilisateurs
                 </a>
             </li>
 
@@ -125,6 +146,11 @@
                 </a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="#">Profil</a></li>
+                    <li>
+                        <a href="{{ route('profile.admin.edit') }}" class="dropdown-item">
+                            <i class="fas fa-user-edit me-2"></i> Modifier mon profil
+                        </a>
+                    </li>
                     <li>
                         <hr class="dropdown-divider" />
                     </li>
@@ -168,6 +194,7 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
     <script src="{{ asset('js/java.js') }}"></script>
 
     <script>
