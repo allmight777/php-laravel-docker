@@ -107,7 +107,7 @@
                     </div>
 
                     <div class="d-flex justify-content-end">
-                        <a href="{{ route('admin.users.index') }}" class="btn btn-secondary me-2">
+                        <a href="{{ route('bulletin.index') }}" class="btn btn-secondary me-2">
                             <i class="fas fa-arrow-left me-1"></i> Retour
                         </a>
                         <button type="submit" class="btn btn-primary"

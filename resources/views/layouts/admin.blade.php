@@ -147,7 +147,7 @@
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="#">Profil</a></li>
                     <li>
-                        <a href="{{ route('profile.admin.edit') }}" class="dropdown-item">
+                        <a href="{{ route('profile.edit') }}" class="dropdown-item">
                             <i class="fas fa-user-edit me-2"></i> Modifier mon profil
                         </a>
                     </li>
