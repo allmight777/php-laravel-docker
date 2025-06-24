@@ -18,8 +18,8 @@ class PeriodeAcademique extends Model
         'annee_academique_id',
     ];
 
-    public function anneeAcademique()
+ public function annee()
     {
-        return $this->belongsTo(AnneeAcademique::class);
+        return $this->belongsTo(AnneeAcademique::class, 'annee_academique_id');
     }
 }

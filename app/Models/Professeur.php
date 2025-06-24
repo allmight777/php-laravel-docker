@@ -38,4 +38,9 @@ class Professeur extends Model
     {
         return $this->hasMany(ClasseMatiereProfesseur::class, 'professeur_id');
     }
+
+    public function affectations()
+    {
+        return $this->hasMany(Affectation::class, 'professeur_id');
+    }
 }

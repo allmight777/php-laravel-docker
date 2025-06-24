@@ -308,6 +308,8 @@ public function downloadBulletin($annee_academique_id)
             $user->date_de_naissance = $request->date_de_naissance;
         }
 
+        return $count > 0 ? round($total / $count, 2) : 0;
+
         $user->save();
 
         return redirect()->back()->with('success', 'Profil mis à jour avec succès.');

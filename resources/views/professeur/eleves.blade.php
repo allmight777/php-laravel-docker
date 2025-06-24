@@ -103,9 +103,10 @@
 
                                                             <input type="number" class="form-control note-input"
                                                                 name="notes[{{ $eleve->id }}][{{ $type }}]"
-                                                                min="0" max="20" step="0.25"
+                                                                min="0" max="20" step="0.01"
                                                                 value="{{ $existingNote ? number_format($existingNote->valeur, 2) : '' }}"
                                                                 {{ $existingNote && $existingNote->is_locked ? 'disabled' : '' }}>
+
                                                         </td>
                                                     @endforeach
                                                 </tr>

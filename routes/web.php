@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\PeriodeAcademiqueController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\BulletinController;
@@ -36,7 +37,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/user/{id}/deactivate', [AdminController::class, 'deactivateUser'])->name('users.deactivate');
         Route::post('/user/{id}/reject', [AdminController::class, 'rejectUser'])->name('users.reject');
 
+<<<<<<< HEAD
+=======
         // Gestion des utilisateurs
+>>>>>>> 61900192c23b7c7b80abe04a8c7e508c27a41429
         Route::get('/users', [AdminController::class, 'listUsers'])->name('users.index');
         Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');
         Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
@@ -56,11 +60,32 @@ Route::middleware('auth')->group(function () {
         Route::put('annees-scolaires/{id}', [AdminController::class, 'updateAnnee'])->name('annees.update');
         Route::delete('annees-scolaires/{id}', [AdminController::class, 'destroyAnnee'])->name('annees.delete');
 
+        // Périodes académiques
+        Route::get('periodes', [PeriodeAcademiqueController::class, 'index'])->name('periodes.index');
+        Route::get('periodes/create', [PeriodeAcademiqueController::class, 'create'])->name('periodes.create');
+        Route::post('periodes', [PeriodeAcademiqueController::class, 'store'])->name('periodes.store');
+        Route::get('periodes/{id}/edit', [PeriodeAcademiqueController::class, 'edit'])->name('periodes.edit');
+        Route::put('periodes/{id}', [PeriodeAcademiqueController::class, 'update'])->name('periodes.update');
+        Route::delete('periodes/{id}', [PeriodeAcademiqueController::class, 'destroy'])->name('periodes.destroy');
+
         // Affectation classes/matières par année scolaire
         Route::get('professeurs/{professeur}/affectation', [AdminController::class, 'affectation'])->name('professeurs.affectation');
         Route::post('professeurs/{professeur}/affectation', [AdminController::class, 'storeAffectation'])->name('professeurs.affectation.store');
         Route::get('/professeurs/{id}/edit-affectation', [AdminController::class, 'editAffectation'])->name('professeurs.affectation.edit');
         Route::put('/professeurs/{id}/update-affectation', [AdminController::class, 'updateAffectation'])->name('professeurs.affectation.update');
+
+        // Afficher les années scolaires pour affectation
+        Route::get('affectations/annees', [AdminController::class, 'affectationAnnees'])->name('affectation.annees');
+
+        // Afficher les classes pour une année donnée
+        Route::get('affectations/{annee}/classes', [AdminController::class, 'affectationClasses'])->name('affectation.classes');
+
+        // Afficher les élèves actifs non affectés pour la classe/année sélectionnées
+        Route::get('affectations/{annee}/{classe}/eleves', [AdminController::class, 'affectationEleves'])->name('affectation.eleves');
+
+        // soumission d’affectation
+        Route::post('affectations/assign', [AdminController::class, 'assignerElevesClasse'])->name('affectation.assigner');
+
     });
 
     // Classes et Professeurs
@@ -86,6 +111,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', [UserController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile/update', [UserController::class, 'updateProfile'])->name('profile.update');
 
+<<<<<<< HEAD
+    Route::get('/profile/editadmin', [UserController::class, 'admineditProfile'])->name('profile.admin.edit');
+    Route::put('/profile/updateadmin', [UserController::class, 'adminupdateProfile'])->name('profile.admin.update');
+
+});
+
+// Réinitialisation des mots de passe , pour avoir tout les options auth
+=======
       // Routes pour la modification du profil utilisateur
     Route::get('/profile/editeleve', [BulletinController::class, 'editProfileleve'])->name('profile.editeleve');
     Route::put('/profile/update', [BulletinController::class, 'updateProfile'])->name('profile.update');
@@ -128,4 +161,5 @@ Route::middleware(['auth', 'professeur'])->group(function () {
     Route::put('/reclamations/{reclamation}/traiter', [ReclamationController::class, 'traiter'])->name('reclamations.traiter');
 });*/
 });
+>>>>>>> 61900192c23b7c7b80abe04a8c7e508c27a41429
 Auth::routes();

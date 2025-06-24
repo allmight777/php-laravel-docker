@@ -3,13 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
-     use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
         'nom',
@@ -20,7 +20,7 @@ class User extends Authenticatable
         'date_de_naissance',
         'password',
         'is_active',
-        'is_admin'
+        'is_admin',
     ];
 
     protected $hidden = [
@@ -32,7 +32,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'date_de_naissance' => 'date',
         'is_active' => 'boolean',
-        'is_admin' => 'boolean'
+        'is_admin' => 'boolean',
     ];
 
     /**
@@ -57,6 +57,11 @@ class User extends Authenticatable
     public function professeur()
     {
         return $this->hasOne(Professeur::class);
+    }
+
+    public function affectations()
+    {
+        return $this->hasMany(Affectation::class, 'professeur_id');
     }
 
     /**

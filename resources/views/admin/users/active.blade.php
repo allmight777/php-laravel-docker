@@ -83,7 +83,7 @@
                                             @if (!$user->is_admin)
                                                 <form action="{{ route('admin.users.deactivate', $user->id) }}"
                                                     method="POST" class="d-inline"
-                                                    onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce compte ?')">
+                                                    onsubmit="return confirm('Êtes-vous sûr de vouloir désactiver ce compte ?')">
                                                     @csrf
 
                                                     <button type="submit" class="btn btn-warning btn-sm">
