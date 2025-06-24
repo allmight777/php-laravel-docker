@@ -20,6 +20,7 @@
                     @endif
 
                     @if ($periodes->isEmpty() || $affectations->isEmpty())
+                        
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
                             Aucune période académique ou matière disponible pour cette classe.

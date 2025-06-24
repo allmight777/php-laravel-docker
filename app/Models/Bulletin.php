@@ -20,7 +20,12 @@ class Bulletin extends Model
         'rang',
     ];
 
-    // Relations 
+    // Relations éventuelles
+    public function notes()
+{
+    return $this->hasMany(Note::class);
+}
+
     public function eleve()
     {
         return $this->belongsTo(Eleve::class);
@@ -30,4 +35,10 @@ class Bulletin extends Model
     {
         return $this->belongsTo(PeriodeAcademique::class);
     }
+    public function matiere()
+{
+    return $this->belongsTo(Matiere::class);
+}
+
+
 }

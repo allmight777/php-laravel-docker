@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Eleve extends Model
 {
     use HasFactory, SoftDeletes;
-
+ 
+    protected $table = 'eleves'; 
     protected $fillable = [
         'user_id',
         'classe_id',
@@ -50,4 +51,45 @@ class Eleve extends Model
             ->orderBy('annee_academique_id', 'desc')
             ->pluck('annee_academique_id');
     }
+    public function calculerMoyenneAnnuelle()
+{
+    $bulletins = $this->bulletins()->with('periode', 'matiere')->get();
+
+    $groupes = $bulletins->groupBy('periode_id');
+    $totalPeriodes = $groupes->count();
+    $sommeMoyennesPeriodes = 0;
+
+    foreach ($groupes as $periodeId => $bulletinsParPeriode) {
+        $totalCoefficients = 0;
+        $totalMoyennesCoeff = 0;
+
+        foreach ($bulletinsParPeriode as $bulletin) {
+            $notes = $bulletin->notes; 
+            $coef = $bulletin->coefficient ?? 1;
+            $moyenne = $bulletin->moyenne ?? 0;
+
+            $totalCoefficients += $coef;
+            $totalMoyennesCoeff += $moyenne * $coef;
+        }
+
+        $moyennePeriodique = $totalCoefficients > 0 ? $totalMoyennesCoeff / $totalCoefficients : 0;
+        $sommeMoyennesPeriodes += $moyennePeriodique;
+    }
+
+    $moyenneAnnuelle = $totalPeriodes > 0 ? $sommeMoyennesPeriodes / $totalPeriodes : null;
+
+    $this->moyenne_annuelle = $moyenneAnnuelle;
+    $this->save();
+}
+Public function moyennes()
+    {
+        return $this->hasMany(Moyenne ::class) ;
+    }
+
+    Public function moyenneAnnuelle($annee)
+    {
+        return $this->moyennes()->where('annee_academique', $annee)->avg('valeur') ;
+    }
+
+
 }
