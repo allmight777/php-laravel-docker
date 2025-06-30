@@ -14,7 +14,8 @@ class UserController extends Controller
 
         return view('profile.edit', compact('user'));
     }
-     public function editProfileleve()
+
+    public function editProfileleve()
     {
         $user = Auth::user();
 
@@ -53,5 +54,38 @@ class UserController extends Controller
         $user->save();
 
         return redirect()->back()->with('success', 'Profil mis à jour avec succès.');
+    }
+
+    public function admineditProfile()
+    {
+        $user = auth()->user();
+
+        return view('profile.adminedit', compact('user'));
+    }
+
+    public function adminupdateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'nullable|email|unique:users,email,'.$user->id,
+            'telephone' => 'nullable|string|max:20',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        if ($request->filled('email')) {
+            $user->email = $request->email;
+        }
+
+        if ($request->filled('telephone')) {
+            $user->telephone = $request->telephone;
+        }
+
+        $user->save();
+
+        return back()->with('success', 'Profil administrateur mis à jour avec succès.');
     }
 }

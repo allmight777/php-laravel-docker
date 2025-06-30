@@ -63,8 +63,17 @@ class PeriodeAcademiqueController extends Controller
 
     public function destroy($id)
     {
-        PeriodeAcademique::destroy($id);
+        $periode = PeriodeAcademique::findOrFail($id);
 
-        return back()->with('success', 'Période supprimée.');
+        $bulletinsCount = $periode->bulletins()->count();
+        $notesCount = \App\Models\Note::where('periode_id', $periode->id)->count();
+
+        if ($bulletinsCount > 0 || $notesCount > 0) {
+            return back()->with('error', 'Suppression impossible : cette période possède des bulletins ou des notes associées.');
+        }
+
+        $periode->delete();
+
+        return back()->with('success', 'Période supprimée avec succès.');
     }
 }

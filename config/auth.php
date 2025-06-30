@@ -12,6 +12,14 @@ return [
     | as required, but they're a perfect start for most applications.
     |
     */
+    'passwords' => [
+    'users' => [
+        'provider' => 'users',
+        'table' => 'password_resets',
+        'expire' => 60,  // Increase this value (in minutes)
+        'throttle' => 60,
+    ],
+],
 
     'defaults' => [
         'guard' => env('AUTH_GUARD', 'web'),

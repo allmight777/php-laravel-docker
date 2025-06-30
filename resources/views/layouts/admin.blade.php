@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     <!-- Custom CSS -->
     <link href="{{ asset('css/admin.css') }}" rel="stylesheet" />
@@ -110,7 +110,7 @@
                     <i class="fas fa-calendar me-2"></i>Modifier/Ajouter années
                 </a>
             </li>
-              <li class="nav-item">
+            <li class="nav-item">
                 <a class="nav-link" href="{{ route('admin.periodes.index') }}">
                     <i class="fas fa-calendar-alt me-2"></i>Modifier/Ajouter période
                 </a>
@@ -139,6 +139,12 @@
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.resultats') }}">
+                    <i class="fas fa-user-graduate me-2"></i>Liste des élèves admis/échoué
+                </a>
+            </li>
+
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                     data-bs-toggle="dropdown" aria-expanded="false">
@@ -147,7 +153,7 @@
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="#">Profil</a></li>
                     <li>
-                        <a href="{{ route('profile.edit') }}" class="dropdown-item">
+                        <a href="{{ route('profile.admin.edit') }}" class="dropdown-item">
                             <i class="fas fa-user-edit me-2"></i> Modifier mon profil
                         </a>
                     </li>

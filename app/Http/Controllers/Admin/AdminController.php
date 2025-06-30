@@ -12,8 +12,6 @@ use App\Models\Eleve;
 use App\Models\Matiere;
 use App\Models\Professeur;
 use App\Models\User;
-use App\Models\Eleve;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -412,10 +410,17 @@ class AdminController extends Controller
     }
 
     // Supprimer annee
-
     public function destroyAnnee($id)
     {
         $annee = AnneeAcademique::findOrFail($id);
+
+        $affectationsCount = \DB::table('affectations')->where('annee_academique_id', $annee->id)->count();
+
+        if ($affectationsCount > 0) {
+            return redirect()->route('admin.annees.index')
+                ->with('error', "Impossible de supprimer l'année scolaire car elle possède des affectations liées.");
+        }
+
         $annee->delete();
 
         return redirect()->route('admin.annees.index')->with('success', 'Année scolaire supprimée avec succès.');
@@ -493,128 +498,92 @@ class AdminController extends Controller
         return redirect()->route('admin.users.index')
             ->with('success', 'Utilisateur mis à jour avec succès!');
     }
-    //Migrations
-     public function showClasses()
+
+    // Migrations
+    public function showClasses()
     {
-        $annee = AnneeAcademique::latest()->first(); 
+        $annee = AnneeAcademique::latest()->first();
         $classes = Classe::all();
+
         return view('admin.classes.index', compact('classes', 'annee'));
     }
 
-    /*public function showEleves($id)
-    {
-       // $eleves = $classe->eleves;
-        $classe = Classe::findOrFail($id);
-        $eleves = $classe->eleves;
-        $annee = AnneeAcademique::latest()->first();
-       // $annee = $eleves->first()?->annee_academique ?? null;
-        return view('admin.classes.eleves', compact('classe', 'eleves', 'annee'));
-    }*/
-    public function showEleves($anneeId, $classeId)
-{
-    $classe = Classe::findOrFail($classeId);
-    $annee = AnneeAcademique::findOrFail($anneeId);
-    $eleves = Eleve::where('classe_id', $classeId)
-                  ->where('annee_academique_id', $anneeId)
-                  ->with('user')
-                  ->get();
 
-    return view('admin.classes.eleves', compact('classe', 'eleves', 'annee'));
-}
+    
+    public function showEleves($anneeId, $classeId)
+    {
+        $classe = Classe::findOrFail($classeId);
+        $annee = AnneeAcademique::findOrFail($anneeId);
+        $eleves = Eleve::where('classe_id', $classeId)
+            ->where('annee_academique_id', $anneeId)
+            ->with('user')
+            ->get();
+
+        return view('admin.classes.eleves', compact('classe', 'eleves', 'annee'));
+    }
 
     public function migrationPage($anneeId, $classeId)
-{
-    $classe = Classe::findOrFail($classeId);
-    $annee = AnneeAcademique::findOrFail($anneeId);
-    
-    $eleves = $classe->eleves()
-                    ->where('annee_academique_id', $anneeId)
-                    ->whereHas('bulletins', function($q) {
-                        $q->where('moyenne_generale', '>=', 10);
-                    })
-                    ->with('user')
-                    ->get();
+    {
+        $classe = Classe::findOrFail($classeId);
+        $annee = AnneeAcademique::findOrFail($anneeId);
 
-    $autresClasses = Classe::where('id', '!=', $classeId)->get();
+        $eleves = $classe->eleves()
+            ->where('annee_academique_id', $anneeId)
+            ->whereHas('bulletins', function ($q) {
+                $q->where('moyenne_generale', '>=', 10);
+            })
+            ->with('user')
+            ->get();
 
-    return view('admin.classes.migration', compact('classe', 'annee', 'eleves', 'autresClasses'));
-}
-   /* public function migrerEleves(Request $request, $id)
+        $autresClasses = Classe::where('id', '!=', $classeId)->get();
+
+        return view('admin.classes.migration', compact('classe', 'annee', 'eleves', 'autresClasses'));
+    }
+
+
+    public function migrerEleves(Request $request, $anneeId, $classeId)
     {
         $request->validate([
             'nouvelle_classe_id' => 'required|exists:classes,id',
             'eleves' => 'required|array',
         ]);
 
-        foreach ($request->eleves as $eleveId) {
-            $eleve = Eleve::find($eleveId);
-            if ($eleve) {
-                $eleve->classe_id = $request->nouvelle_classe_id;
-                $eleve->save();
-            }
-        }
+        Eleve::whereIn('id', $request->eleves)
+            ->update(['classe_id' => $request->nouvelle_classe_id]);
 
-        return redirect()->route('admin.classes')->with('success', 'Migration effectuée avec succès.');
-    }*/
-    public function migrerEleves(Request $request, $anneeId, $classeId)
-{
-    $request->validate([
-        'nouvelle_classe_id' => 'required|exists:classes,id',
-        'eleves' => 'required|array',
-    ]);
+        return redirect()->route('admin.classes')
+            ->with('success', 'Migration effectuée avec succès.');
+    }
 
-    Eleve::whereIn('id', $request->eleves)
-         ->update(['classe_id' => $request->nouvelle_classe_id]);
+    public function showResultats()
+    {
+        $annees = AnneeAcademique::all();
 
-    return redirect()->route('admin.classes')
-                    ->with('success', 'Migration effectuée avec succès.');
-}
+        return view('admin.resultats.annees', compact('annees'));
+    }
 
-public function showResultats()
-{
-    $annees = AnneeAcademique::all();
-    return view('admin.resultats.annees', compact('annees'));
-}
 
-/*public function showClassesForAnnee($anneeId)
-{
-    $annee = AnneeAcademique::findOrFail($anneeId);
-    $classes = Classe::where('annee_academique_id', $anneeId)->get();
-    return view('admin.resultats.classes', compact('classes', 'annee'));
-}*/
-public function showClassesForAnnee($anneeId)
-{
-    $annee = AnneeAcademique::findOrFail($anneeId);
-    $classes = Classe::all(); 
-    return view('admin.resultats.classes', compact('classes', 'annee'));
-}
+    public function showClassesForAnnee($anneeId)
+    {
+        $annee = AnneeAcademique::findOrFail($anneeId);
+        $classes = Classe::all();
 
-/*public function showClassesForAnnee($anneeId)
-{
-    $annee = AnneeAcademique::findOrFail($anneeId);
-    
-    // Récupérer les classes ayant des élèves dans cette année académique
-    $classes = Classe::whereHas('eleves', function($q) use ($anneeId) {
-        $q->whereHas('bulletins', function($q2) use ($anneeId) {
-            $q2->whereHas('periode', function($q3) use ($anneeId) {
-                $q3->where('annee_academique_id', $anneeId);
-            });
-        });
-    })->get();
-    
-    return view('admin.resultats.classes', compact('classes', 'annee'));
-}*/
+        return view('admin.resultats.classes', compact('classes', 'annee'));
+    }
 
-public function showElevesForResultats($anneeId, $classeId)
+    public function showElevesForResultats($anneeId, $classeId)
 {
     $classe = Classe::findOrFail($classeId);
     $annee = AnneeAcademique::findOrFail($anneeId);
     
-    // Élèves admis (moyenne >= 10)
+    // Lire la valeur du seuil depuis l'URL ou utiliser 10 par défaut
+    $seuilAdmission = request()->query('seuil', 10);
+
+    // Élèves admis
     $elevesAdmis = Eleve::where('classe_id', $classeId)
         ->where('annee_academique_id', $anneeId)
-        ->whereHas('bulletins', function($q) {
-            $q->where('moyenne_generale', '>=', 10);
+        ->whereHas('bulletins', function($q) use ($seuilAdmission) {
+            $q->where('moyenne_generale', '>=', $seuilAdmission);
         })
         ->with(['user', 'bulletins' => function($q) {
             $q->latest('periode_id')->limit(1);
@@ -623,12 +592,12 @@ public function showElevesForResultats($anneeId, $classeId)
         ->each(function($eleve) {
             $eleve->moyenne_generale = $eleve->bulletins->first()->moyenne_generale ?? 'N/A';
         });
-    
-    // Élèves refusés (moyenne < 10)
+
+    // Élèves refusés
     $elevesRefuses = Eleve::where('classe_id', $classeId)
         ->where('annee_academique_id', $anneeId)
-        ->whereHas('bulletins', function($q) {
-            $q->where('moyenne_generale', '<', 10);
+        ->whereHas('bulletins', function($q) use ($seuilAdmission) {
+            $q->where('moyenne_generale', '<', $seuilAdmission);
         })
         ->with(['user', 'bulletins' => function($q) {
             $q->latest('periode_id')->limit(1);
@@ -637,8 +606,8 @@ public function showElevesForResultats($anneeId, $classeId)
         ->each(function($eleve) {
             $eleve->moyenne_generale = $eleve->bulletins->first()->moyenne_generale ?? 'N/A';
         });
-        
-    
-    return view('admin.resultats.eleves', compact('classe', 'annee', 'elevesAdmis', 'elevesRefuses'));
+
+    return view('admin.resultats.eleves', compact('classe', 'annee', 'elevesAdmis', 'elevesRefuses', 'seuilAdmission'));
 }
+
 }

@@ -115,6 +115,12 @@
                 Aucun bulletin disponible pour cette année scolaire.
             </div>
         @else
+            <div class="text-end mb-4">
+                <a href="{{ route('bulletin.download', $annee->id) }}" class="btn btn-primary">
+                    <i class="fas fa-download"></i> Télécharger le bulletin (PDF)
+                </a>
+            </div>
+
             @php
                 $groupes = $bulletins->groupBy('periode_id');
             @endphp
@@ -125,14 +131,10 @@
                     $moyennePeriodique = $bulletinsParMatiere->first()->moyenne_periodique ?? 0;
                     $rangPeriodique = $bulletinsParMatiere->first()->rang_periodique ?? '-';
                 @endphp
-                <div class="text-end mb-4">
-                    <a href="{{ route('bulletin.download', $annee->id) }}" class="btn btn-primary">
-                        <i class="fas fa-download"></i> Télécharger le bulletin (PDF)
-                    </a>
-                </div>
+
                 <h4 class="mt-4">🗓️ Période : <strong>{{ $periode->nom }}</strong></h4>
 
-                <table class="table table-striped table-hover table-bordered align-middle text-center">
+                <table class="table table-striped table-hover table-bordered align-middle text-center bulletin-table">
                     <thead class="table-dark">
                         <tr>
                             <th>Matière</th>
@@ -189,10 +191,9 @@
                 </div>
             @endforeach
         @endif
-        <a href="{{ route('reclamations.create') }}" class="btn btn-warning">
-            <i class="fas fa-exclamation-triangle"></i> Faire une réclamation
-        </a>
+
     </div>
+
 @section('scripts')
     <script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
     <script>
@@ -220,7 +221,7 @@
                 });
             });
 
-            // Tri des matières (optionnel)
+            // Tri des matières
             const sortButton = document.createElement('button');
             sortButton.className = 'btn btn-outline-primary mb-3';
             sortButton.textContent = 'Trier par moyenne';

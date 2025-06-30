@@ -37,19 +37,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/user/{id}/deactivate', [AdminController::class, 'deactivateUser'])->name('users.deactivate');
         Route::post('/user/{id}/reject', [AdminController::class, 'rejectUser'])->name('users.reject');
 
-<<<<<<< HEAD
-=======
-        // Gestion des utilisateurs
->>>>>>> 61900192c23b7c7b80abe04a8c7e508c27a41429
         Route::get('/users', [AdminController::class, 'listUsers'])->name('users.index');
         Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');
         Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
         Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
 
-        // Approbations
         Route::get('/approvals', [AdminController::class, 'pendingUsers'])->name('users.pending');
-
-        // Liste des utilisateurs actifs
         Route::get('/active-users', [AdminController::class, 'activeUsers'])->name('users.active');
 
         // Années scolaires
@@ -68,31 +61,40 @@ Route::middleware('auth')->group(function () {
         Route::put('periodes/{id}', [PeriodeAcademiqueController::class, 'update'])->name('periodes.update');
         Route::delete('periodes/{id}', [PeriodeAcademiqueController::class, 'destroy'])->name('periodes.destroy');
 
-        // Affectation classes/matières par année scolaire
+        // Affectation classes/matières
         Route::get('professeurs/{professeur}/affectation', [AdminController::class, 'affectation'])->name('professeurs.affectation');
         Route::post('professeurs/{professeur}/affectation', [AdminController::class, 'storeAffectation'])->name('professeurs.affectation.store');
         Route::get('/professeurs/{id}/edit-affectation', [AdminController::class, 'editAffectation'])->name('professeurs.affectation.edit');
         Route::put('/professeurs/{id}/update-affectation', [AdminController::class, 'updateAffectation'])->name('professeurs.affectation.update');
 
-        // Afficher les années scolaires pour affectation
+        // Affectation élèves
         Route::get('affectations/annees', [AdminController::class, 'affectationAnnees'])->name('affectation.annees');
-
-        // Afficher les classes pour une année donnée
         Route::get('affectations/{annee}/classes', [AdminController::class, 'affectationClasses'])->name('affectation.classes');
-
-        // Afficher les élèves actifs non affectés pour la classe/année sélectionnées
         Route::get('affectations/{annee}/{classe}/eleves', [AdminController::class, 'affectationEleves'])->name('affectation.eleves');
-
-        // soumission d’affectation
         Route::post('affectations/assign', [AdminController::class, 'assignerElevesClasse'])->name('affectation.assigner');
 
+        // Migration
+        Route::get('/classes', [AdminController::class, 'showClasses'])->name('classes');
+        Route::get('/classes/{anneeId}/{classeId}/eleves', [AdminController::class, 'showEleves'])->name('classes.eleves');
+        Route::get('/classes/{anneeId}/{classeId}/migration', [AdminController::class, 'migrationPage'])->name('classes.migration');
+        Route::post('/classes/{anneeId}/{classeId}/migrer', [AdminController::class, 'migrerEleves'])->name('classes.migrer');
+
+        Route::get('/migration/{anneeId}/{classeId}', [ProfesseurController::class, 'listeElevesAMigrer'])->name('migration.index');
+        Route::post('/migration/calcule/{anneeId}/{classeId}', [ProfesseurController::class, 'calculerMoyenneAnnuelle'])->name('migration.calcule');
+        Route::get('/migration/{anneeId}/{classeId}/admis/pdf', [ProfesseurController::class, 'exportAdmisPDF'])->name('migration.export.admis');
+        Route::get('/migration/{anneeId}/{classeId}/refuses/pdf', [ProfesseurController::class, 'exportRefusesPDF'])->name('migration.export.refuses');
+
+        // Résultats
+        Route::get('/resultats', [AdminController::class, 'showResultats'])->name('resultats');
+        Route::get('/resultats/{anneeId}', [AdminController::class, 'showClassesForAnnee'])->name('resultats.classes');
+        Route::get('/resultats/{anneeId}/{classeId}', [AdminController::class, 'showElevesForResultats'])->name('resultats.eleves');
     });
 
-    // Classes et Professeurs
+    // Ressources principales
     Route::resource('classes', ClasseController::class);
     Route::resource('professeurs', ProfesseurController::class);
 
-    // Affecter des classes à un professeur
+    // Affectation des classes aux professeurs
     Route::post('/professeurs/{professeur}/affecter-classes', [ProfesseurController::class, 'affecterClasses'])->name('professeurs.affecter-classes');
 
     // Matières d'une classe
@@ -107,59 +109,25 @@ Route::middleware('auth')->group(function () {
         Route::post('/notes/enregistrer', [ProfesseurController::class, 'saisirNotes'])->name('notes.enregistrer');
     });
 
-    // Routes pour la modification du profil utilisateur
+    // Bulletins
+    Route::get('/bulletins', [BulletinController::class, 'index'])->name('bulletin.index');
+    Route::get('/bulletins/{annee_academique_id}', [BulletinController::class, 'show'])->name('bulletin.show');
+    Route::get('/bulletin/{annee_academique_id}/download', [BulletinController::class, 'downloadBulletin'])->name('bulletin.download');
+
+    // Modification profil
     Route::get('/profile/edit', [UserController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile/update', [UserController::class, 'updateProfile'])->name('profile.update');
-
-<<<<<<< HEAD
     Route::get('/profile/editadmin', [UserController::class, 'admineditProfile'])->name('profile.admin.edit');
     Route::put('/profile/updateadmin', [UserController::class, 'adminupdateProfile'])->name('profile.admin.update');
-
-});
-
-// Réinitialisation des mots de passe , pour avoir tout les options auth
-=======
-      // Routes pour la modification du profil utilisateur
     Route::get('/profile/editeleve', [BulletinController::class, 'editProfileleve'])->name('profile.editeleve');
-    Route::put('/profile/update', [BulletinController::class, 'updateProfile'])->name('profile.update');
 
-    // eleves
-    // web.php
-    
-Route::get('/bulletins', [BulletinController::class, 'index'])->name('bulletin.index');
-Route::get('/bulletins/{annee_academique_id}', [BulletinController::class, 'show'])->name('bulletin.show');
-
-Route::get('/bulletin/{annee_academique_id}/download', [BulletinController::class, 'downloadBulletin'])
-    ->name('bulletin.download');
- 
-// Migration
-Route::get('/admin/classes', [AdminController::class, 'showClasses'])->name('admin.classes');
-Route::get('/admin/classes/{anneeId}/{classeId}/eleves', [AdminController::class, 'showEleves'])->name('admin.classes.eleves');
-Route::get('/admin/classes/{anneeId}/{classeId}/migration', [AdminController::class, 'migrationPage'])->name('admin.classes.migration');
-Route::post('/admin/classes/{anneeId}/{classeId}/migrer', [AdminController::class, 'migrerEleves'])->name('admin.classes.migrer');
-
-// Migration des élèves
-Route::get('/admin/migration/{anneeId}/{classeId}', [ProfesseurController::class, 'listeElevesAMigrer'])->name('migration.index');
-Route::post('/admin/migration/calcule/{anneeId}/{classeId}', [ProfesseurController::class, 'calculerMoyenneAnnuelle'])->name('migration.calcule');
-Route::get('/migration/{anneeId}/{classeId}/admis/pdf', [ProfesseurController::class, 'exportAdmisPDF'])->name('migration.export.admis');
-Route::get('/migration/{anneeId}/{classeId}/refuses/pdf', [ProfesseurController::class, 'exportRefusesPDF'])->name('migration.export.refuses');
-
-Route::get('/admin/resultats', [AdminController::class, 'showResultats'])->name('admin.resultats');
-Route::get('/admin/resultats/{anneeId}', [AdminController::class, 'showClassesForAnnee'])->name('admin.resultats.classes');
-Route::get('/admin/resultats/{anneeId}/{classeId}', [AdminController::class, 'showElevesForResultats'])->name('admin.resultats.eleves');
-
-//Reclamation
-// Pour les élèves
-/*Route::middleware(['auth', 'eleve'])->group(function () {
-    Route::get('/reclamation/create', [ReclamationController::class, 'create'])->name('reclamations.create');
-    Route::post('/reclamation', [ReclamationController::class, 'store'])->name('reclamations.store');
+    Route::get('/test-email', function() {
+    Mail::raw('Test email', function($message) {
+        $message->to('votre@email.com')->subject('Test');
+    });
+    return 'Email sent';
+});
 });
 
-// Pour les professeurs ou admin
-Route::middleware(['auth', 'professeur'])->group(function () {
-    Route::get('/reclamations', [ReclamationController::class, 'index'])->name('reclamations.index');
-    Route::put('/reclamations/{reclamation}/traiter', [ReclamationController::class, 'traiter'])->name('reclamations.traiter');
-});*/
-});
->>>>>>> 61900192c23b7c7b80abe04a8c7e508c27a41429
+// Auth Laravel
 Auth::routes();
