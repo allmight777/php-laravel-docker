@@ -20,7 +20,6 @@
                     @endif
 
                     @if ($periodes->isEmpty() || $affectations->isEmpty())
-                        
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
                             Aucune période académique ou matière disponible pour cette classe.
@@ -79,6 +78,7 @@
                                 <table class="table table-hover animate__animated animate__fadeInUp">
                                     <thead class="table-light">
                                         <tr>
+                                            <th>Actions</th>
                                             <th>Nom</th>
                                             <th>Prénom</th>
                                             <th>Interro 1</th>
@@ -92,6 +92,19 @@
                                         @forelse($eleves as $eleve)
                                             @if ($eleve->user)
                                                 <tr>
+                                                    <td>
+                                                        <div class="d-flex gap-2">
+                                                            <a href="{{ route('reclamations.create', ['eleve' => $eleve->id]) }}"
+                                                               class="btn btn-sm btn-primary">
+                                                                Réclamer
+                                                            </a>
+
+                                                            <a href="{{ route('reclamations.suivi', ['eleve_id' => $eleve->id, 'classeId' => $classe->id, 'anneeId' => $annee->id]) }}"
+                                                                class="btn btn-sm btn-info">
+                                                                <i class="fas fa-eye"></i> Suivi
+                                                            </a>
+                                                        </div>
+                                                    </td>
                                                     <td>{{ $eleve->user->nom ?? '' }}</td>
                                                     <td>{{ $eleve->user->prenom ?? '' }}</td>
                                                     @foreach (['interro1', 'interro2', 'interro3', 'devoir1', 'devoir2'] as $type)
@@ -106,7 +119,6 @@
                                                                 min="0" max="20" step="0.01"
                                                                 value="{{ $existingNote ? number_format($existingNote->valeur, 2) : '' }}"
                                                                 {{ $existingNote && $existingNote->is_locked ? 'disabled' : '' }}>
-
                                                         </td>
                                                     @endforeach
                                                 </tr>
@@ -122,7 +134,8 @@
                             </div>
 
                             <div class="text-end mt-4">
-                                <center><button type="submit"
+                                <center>
+                                    <button type="submit"
                                         class="btn btn-primary btn-lg px-4 animate__animated animate__pulse"
                                         style="max-width: 100%;">
                                         <i class="fas fa-save me-2"></i> Enregistrer les notes

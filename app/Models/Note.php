@@ -36,4 +36,9 @@ class Note extends Model
     {
         return $this->belongsTo(PeriodeAcademique::class);
     }
+
+    public function reclamations()
+{
+    return $this->hasMany(Reclamation::class);
+}
 }

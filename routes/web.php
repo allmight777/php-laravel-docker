@@ -6,9 +6,9 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\BulletinController;
 use App\Http\Controllers\ClasseController;
-use App\Http\Controllers\ClassController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfesseurController;
+use App\Http\Controllers\ReclamationController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -88,6 +88,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/resultats', [AdminController::class, 'showResultats'])->name('resultats');
         Route::get('/resultats/{anneeId}', [AdminController::class, 'showClassesForAnnee'])->name('resultats.classes');
         Route::get('/resultats/{anneeId}/{classeId}', [AdminController::class, 'showElevesForResultats'])->name('resultats.eleves');
+
+          // Routes pour les réclamations admin
+        Route::prefix('reclamations')->group(function () {
+            Route::get('/', [ReclamationController::class, 'adminIndex'])->name('reclamations.admin');
+            Route::post('/unlock/{reclamation}', [ReclamationController::class, 'unlockNote'])->name('reclamations.unlock');
+        });
     });
 
     // Ressources principales
@@ -121,12 +127,15 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile/updateadmin', [UserController::class, 'adminupdateProfile'])->name('profile.admin.update');
     Route::get('/profile/editeleve', [BulletinController::class, 'editProfileleve'])->name('profile.editeleve');
 
-    Route::get('/test-email', function() {
-    Mail::raw('Test email', function($message) {
-        $message->to('votre@email.com')->subject('Test');
+    // Routes pour les réclamations
+    Route::prefix('reclamations')->group(function () {
+        Route::get('/', [ReclamationController::class, 'professeurIndex'])->name('reclamations.professeur');
+        Route::get('/create/{eleve}', [ReclamationController::class, 'create'])->name('reclamations.create');
+        Route::post('/store', [ReclamationController::class, 'store'])->name('reclamations.store');
+        Route::get('professeur/reclamations/suivi/{eleve_id?}', [ReclamationController::class, 'suiviReclamations'])->name('reclamations.suivi');
+
     });
-    return 'Email sent';
-});
+
 });
 
 // Auth Laravel

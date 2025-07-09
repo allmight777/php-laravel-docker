@@ -12,8 +12,7 @@
                         <i class="fas fa-user-clock card-icon"></i>
                         <h5 class="card-title">Demandes en attente</h5>
                         <h3 class="card-text">{{ $counts['pending'] }}</h3>
-                        <a href="{{ route('admin.users.pending') }}" class="btn btn-outline-light btn-sm mt-2">Voir
-                            demandes</a>
+                        <a href="{{ route('admin.users.pending') }}" class="btn btn-outline-light btn-sm mt-2">Voir demandes</a>
                     </div>
                 </div>
             </div>
@@ -24,8 +23,7 @@
                         <i class="fas fa-users card-icon"></i>
                         <h5 class="card-title">Utilisateurs actifs</h5>
                         <h3 class="card-text">{{ $counts['active'] }}</h3>
-                        <a href="{{ route('admin.users.active') }}" class="btn btn-outline-light btn-sm mt-2">Voir
-                            utilisateurs</a>
+                        <a href="{{ route('admin.users.active') }}" class="btn btn-outline-light btn-sm mt-2">Voir utilisateurs</a>
                     </div>
                 </div>
             </div>
@@ -42,8 +40,7 @@
                             <i class="fas fa-calendar card-icon"></i>
                             <h5 class="card-title">Ajouter/Modifier année</h5>
                             <h3 class="card-text"></h3>
-                            <a href="{{ route('admin.annees.index') }}" class="btn btn-outline-light btn-sm mt-2">Voir
-                                années</a>
+                            <a href="{{ route('admin.annees.index') }}" class="btn btn-outline-light btn-sm mt-2">Voir années</a>
                         </div>
                     </div>
                 </div>
@@ -54,8 +51,7 @@
                         <div class="card-body text-center d-flex flex-column justify-content-center">
                             <i class="fas fa-clock fa-2x mb-3"></i>
                             <h5 class="card-title">Gérer les Périodes</h5>
-                            <a href="{{ route('admin.periodes.index') }}" class="btn btn-outline-light btn-sm mt-2">Voir les
-                                périodes</a>
+                            <a href="{{ route('admin.periodes.index') }}" class="btn btn-outline-light btn-sm mt-2">Voir les périodes</a>
                         </div>
                     </div>
                 </div>
@@ -74,8 +70,7 @@
                             <i class="fas fa-compass card-icon"></i>
                             <h5 class="card-title">Affectation professeurs</h5>
                             <h3 class="card-text"></h3>
-                            <a href="{{ route('professeurs.index') }}" class="btn btn-outline-light btn-sm mt-2">Voir
-                                professeurs</a>
+                            <a href="{{ route('professeurs.index') }}" class="btn btn-outline-light btn-sm mt-2">Voir professeurs</a>
                         </div>
                     </div>
                 </div>
@@ -86,8 +81,19 @@
                             <i class="fas fa-user-graduate card-icon"></i>
                             <h5 class="card-title">Affectation élèves</h5>
                             <h3 class="card-text"></h3>
-                            <a href="{{ route('admin.affectation.annees') }}" class="btn btn-outline-light btn-sm mt-2">Voir
-                                élèves</a>
+                            <a href="{{ route('admin.affectation.annees') }}" class="btn btn-outline-light btn-sm mt-2">Voir élèves</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <div class="card dashboard-card bg-warning text-white">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <i class="fas fa-envelope card-icon"></i>
+                            <h5 class="card-title">Gestion des réclamations</h5>
+                            <h3 class="card-text"></h3>
+                            <a href="{{ route('admin.reclamations.admin') }}" class="btn btn-outline-light btn-sm mt-2">Voir
+                                plus</a>
                         </div>
                     </div>
                 </div>
@@ -95,23 +101,6 @@
         </div>
 
 
-    </div>
-
-
-    <div class="card mb-4">
-        <br>
-        <h5 class="mb-4 text-dark">Resultats fin d'annee</h5>
-
-        <div class="col-md-4 mb-3">
-            <div class="card dashboard-card bg-danger text-white">
-                <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <i class="fas fa-edit card-icon"></i>
-                    <h5 class="card-title">Migrations</h5>
-                    <h3 class="card-text"></h3>
-                    <a href="{{ route('admin.resultats') }}" class="btn btn-outline-light btn-sm mt-2">Voir plus</a>
-                </div>
-            </div>
-        </div>
     </div>
 
 
@@ -126,8 +115,7 @@
                     <i class="fas fa-edit card-icon"></i>
                     <h5 class="card-title">Modifier les comptes utilisateurs</h5>
                     <h3 class="card-text"></h3>
-                    <a href="{{ route('admin.users.index') }}" class="btn btn-outline-light btn-sm mt-2">Voir
-                        utilisteurs</a>
+                    <a href="{{ route('admin.users.index') }}" class="btn btn-outline-light btn-sm mt-2">Voir utilisteurs</a>
                 </div>
             </div>
         </div>

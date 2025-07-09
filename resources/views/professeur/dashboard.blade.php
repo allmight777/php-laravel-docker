@@ -2,37 +2,37 @@
 
 @section('content')
     <div class="professor-dashboard">
-        <div class="professor-hero">
-            <div class="hero-overlay"></div>
-            <div class="container">
-                <div class="hero-content text-center text-white animate__animated animate__fadeIn">
-                    <h1 class="display-4">Espace Professeur</h1>
-                    <p class="lead">Bienvenue, {{ Auth::user()->nom }} {{ Auth::user()->prenom }}</p>
-                    <br>
-                    <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary">
-                        <i class="fas fa-user-edit me-2"></i> Modifier mon profil
-                    </a>
-                </div>
+        <br><br><br><br>
+        {{-- SECTION HERO --}}
+        <div class="professor-hero bg-dark text-white py-5 mb-5">
+            <div class="container text-center">
+                <h1 class="display-4 animate__animated animate__fadeInDown">Espace Professeur</h1>
+                <p class="lead animate__animated animate__fadeInUp">
+                    Bienvenue, {{ Auth::user()->nom }} {{ Auth::user()->prenom }}
+                </p>
+                <a href="{{ route('profile.edit') }}" class="btn btn-outline-light mt-3">
+                    <i class="fas fa-user-edit me-2"></i> Modifier mon profil
+                </a>
             </div>
         </div>
 
-        <div class="container py-5 animate__animated animate__fadeInUp">
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white">
-                    <h3><i class="fas fa-calendar-alt me-2"></i> Choisir une année académique</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
+        <div class="container">
+            {{-- SECTION CLASSES ET NOTES --}}
+            <div class="mb-5">
+                <div class="card shadow-lg border-0 animate__animated animate__fadeInLeft">
+                    <div class="card-header bg-primary text-white">
+                        <h3><i class="fas fa-chalkboard-teacher me-2"></i> Gestion des Classes et Notes</h3>
+                    </div>
+                    <div class="card-body row">
                         @foreach ($annees as $annee)
                             <div class="col-md-4 mb-4">
-                                <div class="card h-100 border-primary">
+                                <div class="card border-primary h-100">
                                     <div class="card-body text-center">
-                                        <i class="fas fa-calendar fa-3x text-primary mb-3"></i>
+                                        <i class="fas fa-calendar-alt fa-3x text-primary mb-3"></i>
                                         <h4>{{ $annee->libelle }}</h4>
                                         <p class="text-muted">Gérer vos classes et notes</p>
-                                        <a href="{{ route('professeur.classes', $annee->id) }}"
-                                            class="btn btn-primary btn-lg px-4">
-                                            <i class="fas fa-arrow-right me-2"></i> Sélectionner
+                                        <a href="{{ route('professeur.classes', $annee->id) }}" class="btn btn-primary">
+                                            <i class="fas fa-arrow-right me-2"></i> Accéder
                                         </a>
                                     </div>
                                 </div>
@@ -41,44 +41,36 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
+    {{-- STYLES --}}
     <style>
         .professor-dashboard {
+            background-color: #f8f9fa;
             min-height: 100vh;
         }
 
         .professor-hero {
+            background: url('/images/professor-bg.jpg') center/cover no-repeat;
             position: relative;
-            height: 400px;
-            background-size: cover;
-            display: flex;
-            align-items: center;
         }
 
-        .hero-overlay {
+        .professor-hero::before {
+            content: "";
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background-color: rgba(124, 122, 122, 0.6);
+            z-index: 0;
         }
 
-        .hero-content {
+        .professor-hero .container {
             position: relative;
             z-index: 1;
-            padding-top: 80px;
-        }
-
-        .card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
     </style>
 @endsection

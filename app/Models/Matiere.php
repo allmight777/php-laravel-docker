@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Notifications\ReclamationNotification;
 
 class Matiere extends Model
 {
@@ -40,4 +41,15 @@ class Matiere extends Model
     {
         return $this->hasMany(\App\Models\Affectation::class);
     }
+    public function professeur()
+{
+    return $this->belongsTo(User::class, 'professeur_id');
+}
+public function professeurs()
+{
+    return $this->belongsToMany(Professeur::class, 'classe_matiere_professeur')
+                ->withPivot('classe_id', 'coefficient', 'id');
+}
+
+
 }

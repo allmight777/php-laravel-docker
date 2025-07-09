@@ -169,11 +169,11 @@ class AdminController extends Controller
     }
 
     // Gestion des affectations professeurs/classes/matières par année scolaires
+
+    // affectation profs
+
     public function affectation($id)
     {
-
-        // afficher les classes et matières à affecter à un professeur donné.
-
         $professeur = User::findOrFail($id);
         $annees = AnneeAcademique::all();
 
@@ -189,7 +189,11 @@ class AdminController extends Controller
             return $classe;
         });
 
-        return view('admin.professeurs.affectation', compact('professeur', 'annees', 'classes'));
+        $affectations = Affectation::with(['classe', 'matiere'])
+            ->where('professeur_id', $professeur->id)
+            ->get();
+
+        return view('admin.professeurs.affectation', compact('professeur', 'annees', 'classes', 'affectations'));
     }
 
     // affectation profs
@@ -234,7 +238,7 @@ class AdminController extends Controller
             return redirect()->back()->withErrors($errors);
         }
 
-        return redirect()->route('professeurs.index')->with('success', 'Affectations enregistrées');
+        return redirect()->route('admin.professeurs.index')->with('success', 'Affectations enregistrées');
     }
 
     // Update affectation
@@ -242,19 +246,16 @@ class AdminController extends Controller
     {
         $professeur = User::findOrFail($id);
 
-        // Récupérer toutes les années académiques
         $annees = AnneeAcademique::all();
 
-        // Récupérer les affectations groupées par année scolaire pour ce professeur
+        // Pas de groupBy, juste récupérer les affectations
         $affectations = Affectation::with(['classe', 'matiere'])
             ->where('professeur_id', $professeur->id)
-            ->get()
-            ->groupBy('annee_academique_id');
+            ->get();
 
-        // Sélectionner une année par défaut (la plus récente, ou la première dans la liste)
         $anneeSelectionneeId = $annees->last()?->id ?? $annees->first()?->id;
 
-        return view('admin.professeurs.editAffectation', compact(
+        return view('admin.professeurs.affectation', compact(
             'professeur',
             'annees',
             'affectations',
@@ -265,34 +266,51 @@ class AdminController extends Controller
     public function updateAffectation(Request $request, $id)
     {
         $professeur = User::findOrFail($id);
-        $annee_id = $request->annee_academique_id;
 
-        // Supprimer toutes les affectations existantes pour ce prof et cette année
-        Affectation::where('professeur_id', $professeur->id)
-            ->where('annee_academique_id', $annee_id)
-            ->delete();
-
+        // Récupérer toutes les affectations envoyées
         $affectations = $request->input('affectations', []);
 
-        foreach ($affectations as $combo) {
-            [$classe_id, $matiere_id] = explode('-', $combo);
+        // Tableau pour stocker les erreurs
+        $errors = [];
 
-            // Vérifier si cette matière est déjà affectée à un autre prof pour cette année
-            $exists = Affectation::where('classe_id', $classe_id)
+        // Supprimer toutes les affectations existantes pour ce professeur
+        Affectation::where('professeur_id', $professeur->id)->delete();
+
+        // Recréer les affectations pour les matières cochées
+        foreach ($affectations as $combo) {
+            [$annee_id, $classe_id, $matiere_id] = explode('-', $combo);
+
+            // Vérifier si cette matière est déjà affectée à un autre professeur
+            $exists = Affectation::where('annee_academique_id', $annee_id)
+                ->where('classe_id', $classe_id)
                 ->where('matiere_id', $matiere_id)
-                ->where('annee_academique_id', $annee_id)
+                ->where('professeur_id', '!=', $professeur->id)
                 ->exists();
 
-            if (! $exists) {
+            if ($exists) {
+                $matiere = Matiere::find($matiere_id);
+                $classe = Classe::find($classe_id);
+                $annee = AnneeAcademique::find($annee_id);
+
+                // Ajouter un message d'erreur si la matière est déjà affectée
+                $errors[] = "La matière « {$matiere->nom} » est déjà attribuée à un autre professeur pour la classe « {$classe->nom} » pour l'année scolaire « {$annee->libelle} ».";
+            } else {
+                // Créer une nouvelle affectation si elle n'existe pas déjà
                 Affectation::create([
                     'professeur_id' => $professeur->id,
+                    'annee_academique_id' => $annee_id,
                     'classe_id' => $classe_id,
                     'matiere_id' => $matiere_id,
-                    'annee_academique_id' => $annee_id,
                 ]);
             }
         }
 
+        // Si des erreurs existent, renvoyer à la page précédente avec les messages d'erreur
+        if (count($errors) > 0) {
+            return redirect()->back()->withErrors($errors);
+        }
+
+        // Sinon, rediriger avec un message de succès
         return redirect()->route('professeurs.index')->with('success', 'Affectations mises à jour avec succès.');
     }
 
@@ -508,8 +526,6 @@ class AdminController extends Controller
         return view('admin.classes.index', compact('classes', 'annee'));
     }
 
-
-    
     public function showEleves($anneeId, $classeId)
     {
         $classe = Classe::findOrFail($classeId);
@@ -540,7 +556,6 @@ class AdminController extends Controller
         return view('admin.classes.migration', compact('classe', 'annee', 'eleves', 'autresClasses'));
     }
 
-
     public function migrerEleves(Request $request, $anneeId, $classeId)
     {
         $request->validate([
@@ -562,7 +577,6 @@ class AdminController extends Controller
         return view('admin.resultats.annees', compact('annees'));
     }
 
-
     public function showClassesForAnnee($anneeId)
     {
         $annee = AnneeAcademique::findOrFail($anneeId);
@@ -572,42 +586,41 @@ class AdminController extends Controller
     }
 
     public function showElevesForResultats($anneeId, $classeId)
-{
-    $classe = Classe::findOrFail($classeId);
-    $annee = AnneeAcademique::findOrFail($anneeId);
-    
-    // Lire la valeur du seuil depuis l'URL ou utiliser 10 par défaut
-    $seuilAdmission = request()->query('seuil', 10);
+    {
+        $classe = Classe::findOrFail($classeId);
+        $annee = AnneeAcademique::findOrFail($anneeId);
 
-    // Élèves admis
-    $elevesAdmis = Eleve::where('classe_id', $classeId)
-        ->where('annee_academique_id', $anneeId)
-        ->whereHas('bulletins', function($q) use ($seuilAdmission) {
-            $q->where('moyenne_generale', '>=', $seuilAdmission);
-        })
-        ->with(['user', 'bulletins' => function($q) {
-            $q->latest('periode_id')->limit(1);
-        }])
-        ->get()
-        ->each(function($eleve) {
-            $eleve->moyenne_generale = $eleve->bulletins->first()->moyenne_generale ?? 'N/A';
-        });
+        // Lire la valeur du seuil depuis l'URL ou utiliser 10 par défaut
+        $seuilAdmission = request()->query('seuil', 10);
 
-    // Élèves refusés
-    $elevesRefuses = Eleve::where('classe_id', $classeId)
-        ->where('annee_academique_id', $anneeId)
-        ->whereHas('bulletins', function($q) use ($seuilAdmission) {
-            $q->where('moyenne_generale', '<', $seuilAdmission);
-        })
-        ->with(['user', 'bulletins' => function($q) {
-            $q->latest('periode_id')->limit(1);
-        }])
-        ->get()
-        ->each(function($eleve) {
-            $eleve->moyenne_generale = $eleve->bulletins->first()->moyenne_generale ?? 'N/A';
-        });
+        // Élèves admis
+        $elevesAdmis = Eleve::where('classe_id', $classeId)
+            ->where('annee_academique_id', $anneeId)
+            ->whereHas('bulletins', function ($q) use ($seuilAdmission) {
+                $q->where('moyenne_generale', '>=', $seuilAdmission);
+            })
+            ->with(['user', 'bulletins' => function ($q) {
+                $q->latest('periode_id')->limit(1);
+            }])
+            ->get()
+            ->each(function ($eleve) {
+                $eleve->moyenne_generale = $eleve->bulletins->first()->moyenne_generale ?? 'N/A';
+            });
 
-    return view('admin.resultats.eleves', compact('classe', 'annee', 'elevesAdmis', 'elevesRefuses', 'seuilAdmission'));
-}
+        // Élèves refusés
+        $elevesRefuses = Eleve::where('classe_id', $classeId)
+            ->where('annee_academique_id', $anneeId)
+            ->whereHas('bulletins', function ($q) use ($seuilAdmission) {
+                $q->where('moyenne_generale', '<', $seuilAdmission);
+            })
+            ->with(['user', 'bulletins' => function ($q) {
+                $q->latest('periode_id')->limit(1);
+            }])
+            ->get()
+            ->each(function ($eleve) {
+                $eleve->moyenne_generale = $eleve->bulletins->first()->moyenne_generale ?? 'N/A';
+            });
 
+        return view('admin.resultats.eleves', compact('classe', 'annee', 'elevesAdmis', 'elevesRefuses', 'seuilAdmission'));
+    }
 }

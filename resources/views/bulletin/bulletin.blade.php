@@ -192,63 +192,62 @@
             @endforeach
         @endif
 
-    </div>
 
-@section('scripts')
-    <script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Animation au chargement
-            const sections = document.querySelectorAll('.bulletin-section');
-            sections.forEach((section, index) => {
-                section.style.animationDelay = `${index * 0.1}s`;
-            });
-
-            // Tooltip pour les notes
-            const badges = document.querySelectorAll('.badge');
-            badges.forEach(badge => {
-                badge.addEventListener('mouseenter', function() {
-                    const note = parseFloat(this.textContent);
-                    let appreciation = '';
-
-                    if (note >= 16) appreciation = 'Excellent';
-                    else if (note >= 14) appreciation = 'Très bien';
-                    else if (note >= 12) appreciation = 'Bien';
-                    else if (note >= 10) appreciation = 'Passable';
-                    else appreciation = 'Insuffisant';
-
-                    this.setAttribute('title', `${appreciation} (${note}/20)`);
-                });
-            });
-
-            // Tri des matières
-            const sortButton = document.createElement('button');
-            sortButton.className = 'btn btn-outline-primary mb-3';
-            sortButton.textContent = 'Trier par moyenne';
-            sortButton.addEventListener('click', function() {
-                const table = document.querySelector('.bulletin-table tbody');
-                const rows = Array.from(table.querySelectorAll('tr'));
-
-                rows.sort((a, b) => {
-                    const aNote = parseFloat(a.querySelector('td:nth-child(7)').textContent);
-                    const bNote = parseFloat(b.querySelector('td:nth-child(7)').textContent);
-                    return bNote - aNote;
+    @section('scripts')
+        <script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Animation au chargement
+                const sections = document.querySelectorAll('.bulletin-section');
+                sections.forEach((section, index) => {
+                    section.style.animationDelay = `${index * 0.1}s`;
                 });
 
-                rows.forEach(row => table.appendChild(row));
-            });
+                // Tooltip pour les notes
+                const badges = document.querySelectorAll('.badge');
+                badges.forEach(badge => {
+                    badge.addEventListener('mouseenter', function() {
+                        const note = parseFloat(this.textContent);
+                        let appreciation = '';
 
-            document.querySelector('.container.py-5').prepend(sortButton);
+                        if (note >= 16) appreciation = 'Excellent';
+                        else if (note >= 14) appreciation = 'Très bien';
+                        else if (note >= 12) appreciation = 'Bien';
+                        else if (note >= 10) appreciation = 'Passable';
+                        else appreciation = 'Insuffisant';
 
-            // Impression du bulletin
-            const printButton = document.createElement('button');
-            printButton.className = 'btn btn-outline-secondary mb-3 ms-2';
-            printButton.innerHTML = '<i class="fas fa-print"></i> Imprimer';
-            printButton.addEventListener('click', function() {
-                window.print();
+                        this.setAttribute('title', `${appreciation} (${note}/20)`);
+                    });
+                });
+
+                // Tri des matières
+                const sortButton = document.createElement('button');
+                sortButton.className = 'btn btn-outline-primary mb-3';
+                sortButton.textContent = 'Trier par moyenne';
+                sortButton.addEventListener('click', function() {
+                    const table = document.querySelector('.bulletin-table tbody');
+                    const rows = Array.from(table.querySelectorAll('tr'));
+
+                    rows.sort((a, b) => {
+                        const aNote = parseFloat(a.querySelector('td:nth-child(7)').textContent);
+                        const bNote = parseFloat(b.querySelector('td:nth-child(7)').textContent);
+                        return bNote - aNote;
+                    });
+
+                    rows.forEach(row => table.appendChild(row));
+                });
+
+                document.querySelector('.container.py-5').prepend(sortButton);
+
+                // Impression du bulletin
+                const printButton = document.createElement('button');
+                printButton.className = 'btn btn-outline-secondary mb-3 ms-2';
+                printButton.innerHTML = '<i class="fas fa-print"></i> Imprimer';
+                printButton.addEventListener('click', function() {
+                    window.print();
+                });
+                document.querySelector('.container.py-5').prepend(printButton);
             });
-            document.querySelector('.container.py-5').prepend(printButton);
-        });
-    </script>
-@endsection
+        </script>
+    @endsection
 @endsection

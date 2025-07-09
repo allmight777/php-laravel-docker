@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator; 
+use Illuminate\Support\Facades\Validator;
 use App\Models\Note;
-use App\Models\Eleve; 
+use App\Models\Eleve;
 use App\Models\Bulletin;
 use App\Models\AnneeAcademique;
 use App\Models\PeriodeAcademique;
@@ -73,102 +73,6 @@ class BulletinController extends Controller
         return view('admin.users.editeleve', compact('user'));
     }
 
-/*public function downloadBulletin($annee_academique_id)
-{
-    $eleve = auth()->user()->eleve;
-    $annee = AnneeAcademique::find($annee_academique_id);
-
-    // Récupere les bulletins avec les relations
-    $bulletins = Bulletin::where('eleve_id', $eleve->id)
-        ->whereHas('periode', function($query) use ($annee_academique_id) {
-            $query->where('annee_academique_id', $annee_academique_id);
-        })
-        ->with(['periode', 'matiere'])
-        ->get();
-
-    // Récupere l'effectif de la classe
-    $effectifClasse = Eleve::where('classe_id', $eleve->classe_id)->count();
-
-    // Initialiser les variables
-    $notes = [];
-    $moyennesPeriodes = [];
-    $totalPeriodes = 0;
-    $sommeMoyennesPeriodes = 0;
-
-    foreach ($bulletins as $bulletin) {
-        $periodeId = $bulletin->periode_id;
-        $matiereId = $bulletin->matiere_id;
-        $devoir1 = $devoirs->where('nom_evaluation', 'devoir1')->first()->valeur ?? 0;
-        $devoir2 = $devoirs->where('nom_evaluation', 'devoir2')->first()->valeur ?? 0;
-        // Récupére les notes
-        $notesMatiere = Note::where('eleve_id', $eleve->id)
-            ->where('periode_id', $periodeId)
-            ->where('matiere_id', $matiereId)
-            ->get();
-
-        // Organise les notes par type
-        $interros = $notesMatiere->where('type_evaluation', 'interrogation');
-        $devoirs = $notesMatiere->where('type_evaluation', 'devoir');
-
-        // Calcul des moyennes
-        $moyInterros = $interros->avg('valeur');
-        $moyDevoirs = $devoirs->avg('valeur');
-        $coefficient = $bulletin->matiere->coefficient ?? 1;
-        $moyenneCoeff= ($moyInterros + $devoir1 + $devoir2) / 3 * $coefficient;
-
-        // Stocke les notes pour l'affichage
-        $notes[$periodeId][$matiereId] = [
-            'interro1' => $interros->where('nom_evaluation', 'interro1')->first()->valeur ?? null,
-            'interro2' => $interros->where('nom_evaluation', 'interro2')->first()->valeur ?? null,
-            'interro3' => $interros->where('nom_evaluation', 'interro3')->first()->valeur ?? null,
-            'devoir1' => $devoirs->where('nom_evaluation', 'devoir1')->first()->valeur ?? null,
-            'devoir2' => $devoirs->where('nom_evaluation', 'devoir2')->first()->valeur ?? null,
-            'moy_interros' => $moyInterros,
-            'moy_devoirs' => $moyDevoirs,
-            'moyenne' =>($moyInterros + $devoir1 + $devoir2) / 3,
-            'coefficient' => $coefficient,
-            'moyenne_coeff' => $moyenneCoeff
-        ];
-
-        // Calcul pour la moyenne annuelle
-
-
-       /* if (!isset($moyennesPeriodes[$periodeId])) {
-            $moyennesPeriodes[$periodeId] = $bulletin->moyenne_periodique;
-            $sommeMoyennesPeriodes += $bulletin->moyenne_periodique;
-            $totalPeriodes++;
-        }
-         if (!isset($moyennesPeriodes[$periodeId]['total_coeff'])) {
-            $moyennesPeriodes[$periodeId] = [
-                'total_coeff' => 0,
-                'total_moy_coeff' => 0
-            ];
-        }
-        
-        $moyennesPeriodes[$periodeId]['total_coeff'] += $coefficient;
-        $moyennesPeriodes[$periodeId]['total_moy_coeff'] += $moyenneCoeff;
-    }
-
-    $rangAnnuel = Bulletin::where('eleve_id', $eleve->id)
-        ->whereHas('periode', function($query) use ($annee_academique_id) {
-            $query->where('annee_academique_id', $annee_academique_id);
-        })
-        ->avg('rang_periodique'); 
-    $moyenneAnnuelle = $totalPeriodes > 0 ? $sommeMoyennesPeriodes / $totalPeriodes : 0;
-
-    $pdf = Pdf::loadView('bulletin.pdf', [
-        'eleve' => $eleve,
-        'annee' => $annee,
-        'bulletins' => $bulletins,
-        'notes' => $notes,
-        'rangAnnuel' => round($rangAnnuel),
-        'moyenneAnnuelle' => round($moyenneAnnuelle, 2),
-        'effectifClasse' => $effectifClasse,
-        'groupes' => $bulletins->groupBy('periode_id')
-    ]);
-
-    return $pdf->download("bulletin_{$eleve->user->nom}_{$annee->libelle}.pdf");
-}*/
 public function downloadBulletin($annee_academique_id)
 {
     $eleve = auth()->user()->eleve;
@@ -194,7 +98,7 @@ public function downloadBulletin($annee_academique_id)
     foreach ($bulletins as $bulletin) {
         $periodeId = $bulletin->periode_id;
         $matiereId = $bulletin->matiere_id;
-        
+
         // Récupérer les notes
         $notesMatiere = Note::where('eleve_id', $eleve->id)
             ->where('periode_id', $periodeId)
@@ -209,7 +113,7 @@ public function downloadBulletin($annee_academique_id)
         $moyInterros = $interros->avg('valeur');
         $moyDevoirs = $devoirs->avg('valeur');
         $coefficient = $bulletin->matiere->coefficient ?? 1;
-        
+
         // Calcul de la moyenne selon la formule : (moyInterros + devoir1 + devoir2) / 3
         $devoir1 = $devoirs->where('nom_evaluation', 'devoir1')->first()->valeur ?? 0;
         $devoir2 = $devoirs->where('nom_evaluation', 'devoir2')->first()->valeur ?? 0;
@@ -237,7 +141,7 @@ public function downloadBulletin($annee_academique_id)
                 'total_moy_coeff' => 0
             ];
         }
-        
+
         $moyennesPeriodes[$periodeId]['total_coeff'] += $coefficient;
         $moyennesPeriodes[$periodeId]['total_moy_coeff'] += $moyenneCoeff;
     }

@@ -39,6 +39,9 @@ class Bulletin extends Model
 {
     return $this->belongsTo(Matiere::class);
 }
-
+public function reclamations()
+{
+    return $this->hasMany(Reclamation::class);
+}
 
 }

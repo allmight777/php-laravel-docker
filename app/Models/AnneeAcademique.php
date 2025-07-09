@@ -14,4 +14,9 @@ class AnneeAcademique extends Model
     {
         return $this->hasMany(PeriodeAcademique::class);
     }
+
+    public function reclamations()
+    {
+        return $this->hasMany(Reclamation::class, 'annee_academique_id');
+    }
 }

@@ -119,44 +119,8 @@ class ProfesseurController extends Controller
             'selectedPeriodeId'
         ));
     }
-    
-   /* public function listeElevesAMigrer($anneeId, $classeId)
-    {
-        // Récupération de la classe sans essayer de charger anneeAcademique via la relation
-        $classe = Classe::findOrFail($classeId);
 
-        // Récupération séparée de l'année académique
-        $annee = AnneeAcademique::findOrFail($anneeId);
 
-        // Le reste de votre méthode reste inchangé
-        $elevesAdmis = Eleve::where('classe_id', $classeId)
-            ->where('annee_academique_id', $anneeId)
-            ->whereHas('bulletins', function ($q) {
-                $q->where('moyenne_generale', '>=', 10);
-            })
-            ->with(['user', 'bulletins' => function ($q) {
-                $q->latest('periode_id')->limit(1);
-            }])
-            ->get()
-            ->each(function ($eleve) {
-                $eleve->moyenne_generale = $eleve->bulletins->first()->moyenne_generale ?? 'N/A';
-            });
-
-        $elevesRefuses = Eleve::where('classe_id', $classeId)
-            ->where('annee_academique_id', $anneeId)
-            ->whereHas('bulletins', function ($q) {
-                $q->where('moyenne_generale', '<', 10);
-            })
-            ->with(['user', 'bulletins' => function ($q) {
-                $q->latest('periode_id')->limit(1);
-            }])
-            ->get()
-            ->each(function ($eleve) {
-                $eleve->moyenne_generale = $eleve->bulletins->first()->moyenne_generale ?? 'N/A';
-            });
-
-        return view('admin.migration.index', compact('classe', 'annee', 'elevesAdmis', 'elevesRefuses'));
-    }*/
 public function listeElevesAMigrer($anneeId, $classeId)
 {
     $classe = Classe::findOrFail($classeId);

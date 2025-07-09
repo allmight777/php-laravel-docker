@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
     <!-- Custom CSS -->
     <link href="{{ asset('css/admin.css') }}" rel="stylesheet" />
@@ -110,7 +110,7 @@
                     <i class="fas fa-calendar me-2"></i>Modifier/Ajouter années
                 </a>
             </li>
-            <li class="nav-item">
+              <li class="nav-item">
                 <a class="nav-link" href="{{ route('admin.periodes.index') }}">
                     <i class="fas fa-calendar-alt me-2"></i>Modifier/Ajouter période
                 </a>
@@ -136,6 +136,13 @@
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('admin.users.index') }}">
                     <i class="fas fa-users-cog me-2"></i>Gestion des Utilisateurs
+                </a>
+            </li>
+
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.reclamations.admin') }}">
+                    <i class="fas fa-envelope-open-text me-2"></i>Réclamations
                 </a>
             </li>
 
