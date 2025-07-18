@@ -25,13 +25,24 @@ class ResetPasswordController extends Controller
      *
      * @var string
      */
+<<<<<<< HEAD
     //protected $redirectTo = '/home';
     protected $redirectTo = '/login';
 
+=======
+    protected $redirectTo = '/home';
+
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+>>>>>>> origin/master
     public function __construct()
     {
         $this->middleware('guest');
     }
+<<<<<<< HEAD
 
     // Add this method to handle mobile requests better
     protected function sendResetResponse(Request $request, $response)
@@ -44,4 +55,6 @@ class ResetPasswordController extends Controller
             ->with('status', trans($response))
             ->withCookie(cookie()->forever('password_reset', true));
 }
+=======
+>>>>>>> origin/master
 }
