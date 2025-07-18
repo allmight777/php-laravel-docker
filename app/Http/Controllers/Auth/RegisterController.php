@@ -95,10 +95,8 @@ class RegisterController extends Controller
 
     public function showRegistrationForm()
     {
-        $classes = Classe::all();
-        $annees = AnneeAcademique::all();
-
-        return view('auth.register', compact('classes', 'annees'));
+      
+        return view('auth.register');
     }
 
     protected function registered(Request $request, $user)
