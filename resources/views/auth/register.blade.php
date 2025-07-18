@@ -111,50 +111,7 @@
                                     </div>
 
                                     <!-- Champs Étudiant -->
-                                    <div id="student-fields"
-                                        style="{{ old('user_type', 'eleve') == 'professeur' ? 'display: none;' : '' }}">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label for="classe_id" class="form-label">Classe <span
-                                                        class="text-danger">*</span></label>
-                                                <select id="classe_id"
-                                                    class="form-select @error('classe_id') is-invalid @enderror"
-                                                    name="classe_id">
-                                                    <option value="">Sélectionner votre classe</option>
-                                                    @foreach ($classes as $classe)
-                                                        <option value="{{ $classe->id }}"
-                                                            {{ old('classe_id') == $classe->id ? 'selected' : '' }}>
-                                                            {{ $classe->nom }} @if ($classe->serie)
-                                                                - {{ $classe->serie }}
-                                                            @endif
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @error('classe_id')
-                                                    <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label for="annee_academique_id" class="form-label">Année académique <span
-                                                        class="text-danger">*</span></label>
-                                                <select id="annee_academique_id"
-                                                    class="form-select @error('annee_academique_id') is-invalid @enderror"
-                                                    name="annee_academique_id">
-                                                    <option value="">Sélectionner l'année</option>
-                                                    @foreach ($annees as $annee)
-                                                        <option value="{{ $annee->id }}"
-                                                            {{ old('annee_academique_id') == $annee->id ? 'selected' : '' }}>
-                                                            {{ $annee->libelle }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @error('annee_academique_id')
-                                                    <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    </div>
+                                    
 
                                     <div class="col-md-12">
                                         <label for="photo" class="form-label">Photo de profil</label>
