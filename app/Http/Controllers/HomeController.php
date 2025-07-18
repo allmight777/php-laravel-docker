@@ -29,10 +29,8 @@ class HomeController extends Controller
      */
     public function register()
     {
-        $classes = Classe::all();
-        $annees = AnneeAcademique::all();
 
-        return view('auth.register', compact('classes', 'annees'));
+        return view('auth.register');
     }
 
     /**
