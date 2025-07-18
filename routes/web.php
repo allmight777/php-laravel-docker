@@ -26,7 +26,7 @@ Route::get('/healthz', function () {
 
 
 
-Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::get('register', [HomeController::class, 'register'])->name('register');
 Route::post('register', [RegisterController::class, 'register']);
 
 Route::middleware('auth')->group(function () {
