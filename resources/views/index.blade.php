@@ -89,15 +89,15 @@
                     <div id="carousel1" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
                             <div class="carousel-item active">
-                                <img src="{{ asset('images/image_1.png') }}" class="d-block w-100 carousel-img"
+                                <img src="{{ asset('image_1.png') }}" class="d-block w-100 carousel-img"
                                     alt="Image 1">
                             </div>
                             <div class="carousel-item">
-                                <img src="{{ asset('images/image_2.png') }}" class="d-block w-100 carousel-img"
+                                <img src="{{ asset('image_2.png') }}" class="d-block w-100 carousel-img"
                                     alt="Image 2">
                             </div>
                               <div class="carousel-item">
-                                <img src="{{ asset('images/image_8.png') }}" class="d-block w-100 carousel-img"
+                                <img src="{{ asset('image_8.png') }}" class="d-block w-100 carousel-img"
                                     alt="Image 8">
                             </div>
                         </div>
@@ -119,15 +119,15 @@
                     <div id="carousel2" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
                             <div class="carousel-item active">
-                                <img src="{{ asset('images/image_7.png') }}" class="d-block w-100 carousel-img"
+                                <img src="{{ asset('image_7.png') }}" class="d-block w-100 carousel-img"
                                     alt="Image 7">
                             </div>
                             <div class="carousel-item">
-                                <img src="{{ asset('images/image_6.png') }}" class="d-block w-100 carousel-img"
+                                <img src="{{ asset('image_6.png') }}" class="d-block w-100 carousel-img"
                                     alt="Image 6">
                             </div>
                               <div class="carousel-item">
-                                <img src="{{ asset('images/image_9.png') }}" class="d-block w-100 carousel-img"
+                                <img src="{{ asset('image_9.png') }}" class="d-block w-100 carousel-img"
                                     alt="Image 9">
                             </div>
                         </div>
@@ -149,15 +149,15 @@
                     <div id="carousel3" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
                             <div class="carousel-item active">
-                                <img src="{{ asset('images/image_5.png') }}" class="d-block w-100 carousel-img"
+                                <img src="{{ asset('image_5.png') }}" class="d-block w-100 carousel-img"
                                     alt="Image 5">
                             </div>
                             <div class="carousel-item">
-                                <img src="{{ asset('images/image_3.png') }}" class="d-block w-100 carousel-img"
+                                <img src="{{ asset('image_3.png') }}" class="d-block w-100 carousel-img"
                                     alt="Image 3">
                             </div>
                                <div class="carousel-item">
-                                <img src="{{ asset('images/image_10.png') }}" class="d-block w-100 carousel-img"
+                                <img src="{{ asset('image_10.png') }}" class="d-block w-100 carousel-img"
                                     alt="Image 10">
                             </div>
                         </div>
