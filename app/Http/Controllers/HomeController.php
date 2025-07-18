@@ -27,10 +27,10 @@ class HomeController extends Controller
     /**
      * Formulaire d'inscription
      */
-    public function register()
-    {
-        return view('auth.register');
-    }
+public function register()
+{
+    return "Page register OK";
+}
 
     /**
      *
