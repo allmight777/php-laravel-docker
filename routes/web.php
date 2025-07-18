@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('index');
 
 // Authentification
-Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::get('login', [HomeController::class, 'login'])->name('login');
 Route::post('login', [LoginController::class, 'login']);
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
