@@ -27,10 +27,13 @@ class HomeController extends Controller
     /**
      * Formulaire d'inscription
      */
-public function register()
-{
-     return view('auth.register');
-}
+    public function register()
+    {
+        $classes = Classe::all();
+        $annees = AnneeAcademique::all();
+
+        return view('auth.register', compact('classes', 'annees'));
+    }
 
     /**
      *
