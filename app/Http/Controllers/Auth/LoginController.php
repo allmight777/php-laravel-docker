@@ -11,50 +11,57 @@ class LoginController extends Controller
 {
     public function __construct()
     {
+        // Seuls les invités peuvent accéder sauf pour logout
         $this->middleware('guest')->except('logout');
     }
 
-public function connexion(Request $request)
-{
-    // Validation minimale
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|string',
-    ]);
+    public function connexion(Request $request)
+    {
+        // Validation des champs
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
 
-    // Tentative de connexion avec condition is_active = true
-    $credentials = $request->only('email', 'password');
-    $credentials['is_active'] = true;
+        // Préparation des identifiants avec is_active = true
+        $credentials = $request->only('email', 'password');
+        $credentials['is_active'] = true;
 
-    if (auth()->attempt($credentials, $request->filled('remember'))) {
-        $request->session()->regenerate();
+        // Tentative de connexion
+        if (auth()->attempt($credentials, $request->filled('remember'))) {
+            $request->session()->regenerate();
 
-        $user = auth()->user();
+            $user = auth()->user();
 
-        if ($user->is_admin) {
-            return redirect()->route('admin.dashboard');
-        } elseif ($user->professeur()->exists()) {
-            return response()->json(['message' => 'OK, je suis prof']);
-        } elseif ($user->eleve()->exists()) {
-            return response()->json(['message' => 'OK, je suis eleve']);
+            // Redirection selon le rôle
+            if ($user->is_admin) {
+                return redirect()->route('admin.dashboard');
+            }
+
+            if ($user->professeur()->exists()) {
+                return redirect()->route('professeur.dashboard');
+            }
+
+            if ($user->eleve()->exists()) {
+                return redirect()->route('bulletin.index');
+            }
+
+            // Par défaut si aucun rôle
+            return redirect('/');
         }
 
-        return response()->json(['message' => 'Utilisateur non catégorisé']);
-    }
+        // Si le compte existe mais inactif
+        if (\App\Models\User::where('email', $request->email)->where('is_active', false)->exists()) {
+            throw ValidationException::withMessages([
+                'email' => 'Votre compte est en attente de validation.',
+            ]);
+        }
 
-    // Échec de connexion
-    if (\App\Models\User::where('email', $request->email)->where('is_active', false)->exists()) {
+        // Échec d'authentification
         throw ValidationException::withMessages([
-            'email' => 'Votre compte est en attente de validation.',
+            'email' => trans('auth.failed'),
         ]);
     }
-
-    throw ValidationException::withMessages([
-        'email' => trans('auth.failed'),
-    ]);
-}
-
-
 
     public function logout(Request $request)
     {
