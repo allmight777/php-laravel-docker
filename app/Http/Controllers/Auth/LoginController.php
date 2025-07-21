@@ -34,9 +34,9 @@ public function connexion(Request $request)
         if ($user->is_admin) {
             return redirect()->route('admin.dashboard');
         } elseif ($user->professeur) {
-            return redirect()->route('professeur.dashboard');
+            return response()->json(['message' => 'OK, je suis prof']);
         } elseif ($user->eleve) {
-            return redirect()->route('bulletin.index');
+            return response()->json(['message' => 'OK, je suis eleve']);
         }
 
         return redirect()->intended('/');
