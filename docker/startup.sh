@@ -1,10 +1,10 @@
 #!/bin/bash
 
-echo "📦 Composer install..."
-composer install --no-interaction --prefer-dist --optimize-autoloader
+echo "✅ Lancement de composer install"
+composer install
 
-echo "🔄 Laravel migrations..."
+echo "✅ Lancement des migrations"
 php artisan migrate --force
 
-echo "🚀 Lancement de l’application..."
-exec /start.sh
+echo "✅ Démarrage du conteneur"
+/start.sh  # script original de l'image richarvey/nginx-php-fpm
