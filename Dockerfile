@@ -3,7 +3,7 @@ FROM richarvey/nginx-php-fpm:3.1.6
 # Définir le répertoire de travail
 WORKDIR /var/www/html
 
-# Copier tous les fichiers du projet Laravel dans le conteneur
+# Copier les fichiers du projet dans le conteneur
 COPY . /var/www/html
 
 # Variables d'environnement Laravel & PHP
@@ -17,9 +17,12 @@ ENV LOG_CHANNEL stderr
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV SKIP_COMPOSER 0
 
+# Installer dompdf (barryvdh/laravel-dompdf)
+RUN composer require barryvdh/laravel-dompdf
+
 # Ajouter le script de démarrage personnalisé
 COPY docker/startup.sh /startup.sh
 RUN chmod +x /startup.sh
 
-# Utiliser le script custom qui lance les migrations puis démarre nginx/php-fpm
+# Lancer le script personnalisé au démarrage
 CMD ["/startup.sh"]
