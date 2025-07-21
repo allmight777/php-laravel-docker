@@ -33,13 +33,13 @@ public function connexion(Request $request)
 
         if ($user->is_admin) {
             return redirect()->route('admin.dashboard');
-        } elseif ($user->professeur) {
+        } elseif ($user->professeur()->exists()) {
             return response()->json(['message' => 'OK, je suis prof']);
-        } elseif ($user->eleve) {
+        } elseif ($user->eleve()->exists()) {
             return response()->json(['message' => 'OK, je suis eleve']);
         }
 
-        return redirect()->intended('/');
+        return response()->json(['message' => 'Utilisateur non catégorisé']);
     }
 
     // Échec de connexion
