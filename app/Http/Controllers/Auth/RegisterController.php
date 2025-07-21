@@ -95,8 +95,10 @@ class RegisterController extends Controller
 
     public function showRegistrationForm()
     {
-      
-        return view('auth.register');
+        $classes = Classe::all();
+        $annees = AnneeAcademique::all();
+
+        return view('auth.register', compact('classes', 'annees'));
     }
 
     protected function registered(Request $request, $user)
@@ -110,5 +112,5 @@ class RegisterController extends Controller
         return $this->redirectTo ?? '/login';
     }
 
-
+  
 }
