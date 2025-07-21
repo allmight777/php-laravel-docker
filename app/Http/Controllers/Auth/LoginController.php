@@ -34,52 +34,51 @@ class LoginController extends Controller
     /**
      * Gère la tentative de connexion.
      */
- public function connexion(Request $request)
+public function connexion(Request $request)
 {
-    // Validation
+    // Validation des données reçues
     $request->validate([
         'email' => 'required|email',
         'password' => 'required|string',
     ]);
 
+    // Préparer les credentials avec is_active = true pour empêcher connexion si inactif
     $credentials = [
         'email' => $request->email,
         'password' => $request->password,
         'is_active' => true,
     ];
 
+    // Tentative d'authentification
     if (auth()->attempt($credentials, $request->filled('remember'))) {
         $user = auth()->user();
 
-        // Redirection selon les rôles (relations)
-        if ($user->administrateur()->exists()) {
+        // Redirection selon le rôle
+        if ($user->isAdmin()) {
             return redirect()->route('admin.dashboard');
-        }
-
-        if ($user->professeur()->exists()) {
+        } elseif ($user->professeur) {
             return redirect()->route('professeur.dashboard');
-        }
-
-        if ($user->eleve()->exists()) {
+        } elseif ($user->eleve) {
             return redirect()->route('bulletin.index');
         }
 
-        // Redirection par défaut
+        // Par défaut, redirige vers la page d'accueil
         return redirect()->intended('/');
     }
 
-    // Si le compte est inactif
+    // Vérification si compte inactif
     if (User::where('email', $request->email)->where('is_active', false)->exists()) {
         return back()->withErrors([
             'email' => 'Votre compte est en attente de validation.',
         ])->withInput();
     }
 
-    // Échec d'authentification
+    // Si on arrive ici, échec d'authentification classique
     return back()->withErrors([
         'email' => 'Identifiants incorrects.',
     ])->withInput();
 }
+
 
     /**
      * Déconnexion
