@@ -34,49 +34,70 @@ class LoginController extends Controller
     /**
      * Gère la tentative de connexion.
      */
-public function connexion(Request $request)
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+
+class LoginController extends Controller
 {
-    // Validation des données reçues
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|string',
-    ]);
+    public function __construct()
+    {
+        $this->middleware('guest')->except('logout');
+    }
 
-    // Préparer les credentials avec is_active = true pour empêcher connexion si inactif
-    $credentials = [
-        'email' => $request->email,
-        'password' => $request->password,
-        'is_active' => true,
-    ];
+    public function connexion(Request $request)
+    {
+        // Validation
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
 
-    // Tentative d'authentification
-    if (auth()->attempt($credentials, $request->filled('remember'))) {
-        $user = auth()->user();
+        // Tentative de connexion avec is_active = true
+        $credentials = $request->only('email', 'password');
+        $credentials['is_active'] = true;
 
-        // Redirection selon le rôle
-        if ($user->isAdmin()) {
-            return redirect()->route('admin.dashboard');
-        } elseif ($user->professeur) {
-            return redirect()->route('professeur.dashboard');
-        } elseif ($user->eleve) {
-            return redirect()->route('bulletin.index');
+        if (Auth::attempt($credentials, $request->filled('remember'))) {
+            $request->session()->regenerate();
+
+            $user = Auth::user();
+
+            if ($user->is_admin) {
+                return redirect()->route('admin.dashboard');
+            } elseif ($user->professeur) {
+                return redirect()->route('professeur.dashboard');
+            } elseif ($user->eleve) {
+                return redirect()->route('bulletin.index');
+            }
+
+            // Redirection par défaut
+            return redirect()->intended('/');
         }
 
-        // Par défaut, redirige vers la page d'accueil
-        return redirect()->intended('/');
+        // Échec de connexion
+        if (\App\Models\User::where('email', $request->email)->where('is_active', false)->exists()) {
+            throw ValidationException::withMessages([
+                'email' => 'Votre compte est en attente de validation.',
+            ]);
+        }
+
+        throw ValidationException::withMessages([
+            'email' => trans('auth.failed'),
+        ]);
     }
 
-    // Vérification si compte inactif
-    if (User::where('email', $request->email)->where('is_active', false)->exists()) {
-        return back()->withErrors([
-            'email' => 'Votre compte est en attente de validation.',
-        ])->withInput();
-    }
+    public function logout(Request $request)
+    {
+        Auth::logout();
 
-    // Si on arrive ici, échec d'authentification classique
-    return back()->withErrors([
-        'email' => 'Identifiants incorrects.',
-    ])->withInput();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
+    }
 }
 
 
