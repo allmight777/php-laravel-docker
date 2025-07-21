@@ -138,5 +138,4 @@ Route::middleware('auth')->group(function () {
 
 });
 
-// Auth Laravel
-Auth::routes();
+
