@@ -15,6 +15,11 @@ use Illuminate\Support\Facades\Route;
 // Page d'accueil
 Route::get('/', [HomeController::class, 'index'])->name('index');
 
+Route::get('/healthz', function () {
+    return response()->json(['status' => 'ok']);
+});
+
+
 // Authentification
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('login', [LoginController::class, 'login']);
