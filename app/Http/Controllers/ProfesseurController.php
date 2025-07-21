@@ -456,156 +456,157 @@ public function listeElevesAMigrer($anneeId, $classeId)
         return $count > 0 ? round($total / $count, 2) : 0;
     }
 
-    // Gestion des statistiques
+// Gestion des statistiques
 
-    public function showStatistics($anneeId, $classeId)
-    {
-        $professeurId = Auth::user()->professeur->id;
+public function showStatistics($anneeId, $classeId)
+{
+    $professeurId = Auth::user()->professeur->id;
 
-        // Récupérer les affectations du professeur
-        $affectations = Affectation::where('professeur_id', $professeurId)
-            ->where('classe_id', $classeId)
-            ->where('annee_academique_id', $anneeId)
-            ->with('matiere')
-            ->get();
+    // Récupérer les affectations du professeur
+    $affectations = Affectation::where('professeur_id', $professeurId)
+        ->where('classe_id', $classeId)
+        ->where('annee_academique_id', $anneeId)
+        ->with('matiere')
+        ->get();
 
-        $classe = Classe::findOrFail($classeId);
-        $annee = AnneeAcademique::findOrFail($anneeId);
-        $periodes = PeriodeAcademique::where('annee_academique_id', $anneeId)->get();
+    $classe = Classe::findOrFail($classeId);
+    $annee = AnneeAcademique::findOrFail($anneeId);
+    $periodes = PeriodeAcademique::where('annee_academique_id', $anneeId)->get();
 
-        // Récupérer la période sélectionnée (ou la première par défaut)
-        $selectedPeriodeId = request('periode_id', $periodes->first()->id ?? null);
-        $selectedMatiereId = request('matiere_id', $affectations->first()->matiere_id ?? null);
+    // Récupérer la période sélectionnée (ou la première par défaut)
+    $selectedPeriodeId = request('periode_id', $periodes->first()->id ?? null);
+    $selectedMatiereId = request('matiere_id', $affectations->first()->matiere_id ?? null);
 
-        $statistics = [];
-        $topStudents = [];
-        $bottomStudents = [];
-        $successRates = [];
-        $globalStats = null;
+    $statistics = [];
+    $topStudents = [];
+    $bottomStudents = [];
+    $successRates = [];
+    $globalStats = null;
 
-        if ($selectedPeriodeId) {
-            // Statistiques par matière si une matière est sélectionnée
-            if ($selectedMatiereId) {
-                $statistics = $this->getMatiereStatistics($classeId, $selectedMatiereId, $selectedPeriodeId);
-            }
-
-            // Top 3 et 3 derniers élèves (toutes matières confondues)
-            $topStudents = $this->getTopStudents($classeId, $selectedPeriodeId, 3);
-            $bottomStudents = $this->getBottomStudents($classeId, $selectedPeriodeId, 3);
-
-            // Taux de réussite global
-            $globalStats = $this->getGlobalStatistics($classeId, $selectedPeriodeId);
-
-            // Taux de réussite par matière
-            foreach ($affectations as $affectation) {
-                $successRates[$affectation->matiere->nom] = $this->getSuccessRate(
-                    $classeId,
-                    $affectation->matiere_id,
-                    $selectedPeriodeId
-                );
-            }
+    if ($selectedPeriodeId) {
+        // Statistiques par matière si une matière est sélectionnée
+        if ($selectedMatiereId) {
+            $statistics = $this->getMatiereStatistics($classeId, $selectedMatiereId, $selectedPeriodeId);
         }
 
-        return view('professeur.statistiques', compact(
-            'classe',
-            'annee',
-            'periodes',
-            'affectations',
-            'selectedPeriodeId',
-            'selectedMatiereId',
-            'statistics',
-            'topStudents',
-            'bottomStudents',
-            'globalStats',
-            'successRates'
-        ));
+        // Top 3 et 3 derniers élèves (toutes matières confondues)
+        $topStudents = $this->getTopStudents($classeId, $selectedPeriodeId, 3);
+        $bottomStudents = $this->getBottomStudents($classeId, $selectedPeriodeId, 3);
+
+        // Taux de réussite global
+        $globalStats = $this->getGlobalStatistics($classeId, $selectedPeriodeId);
+
+        // Taux de réussite par matière
+        foreach ($affectations as $affectation) {
+            $successRates[$affectation->matiere->nom] = $this->getSuccessRate(
+                $classeId,
+                $affectation->matiere_id,
+                $selectedPeriodeId
+            );
+        }
     }
 
-    // Méthodes helper pour les statistiques
-    private function getMatiereStatistics($classeId, $matiereId, $periodeId)
-    {
-        return Bulletin::where('matiere_id', $matiereId)
-            ->where('periode_id', $periodeId)
-            ->whereIn('eleve_id', function ($query) use ($classeId) {
-                $query->select('id')
-                    ->from('eleves')
-                    ->where('classe_id', $classeId);
-            })
-            ->selectRaw('
-            COUNT(*) as total_eleves,
-            SUM(CASE WHEN statut = 1 THEN 1 ELSE 0 END) as reussite,
-            SUM(CASE WHEN statut = 0 THEN 1 ELSE 0 END) as echec,
-            AVG(moyenne) as moyenne_classe,
-            MIN(moyenne) as pire_note,
-            MAX(moyenne) as meilleure_note
-        ')
-            ->first();
-    }
+    return view('professeur.statistiques', compact(
+        'classe',
+        'annee',
+        'periodes',
+        'affectations',
+        'selectedPeriodeId',
+        'selectedMatiereId',
+        'statistics',
+        'topStudents',
+        'bottomStudents',
+        'globalStats',
+        'successRates'
+    ));
+}
 
-    private function getTopStudents($classeId, $periodeId, $limit = 3)
-    {
-        return Bulletin::with(['eleve.user'])
-            ->where('periode_id', $periodeId)
-            ->whereIn('eleve_id', function ($query) use ($classeId) {
-                $query->select('id')
-                    ->from('eleves')
-                    ->where('classe_id', $classeId);
-            })
-            ->select('eleve_id', DB::raw('AVG(moyenne_periodique) as moyenne'))
-            ->groupBy('eleve_id')
-            ->orderByDesc('moyenne')
-            ->limit($limit)
-            ->get();
-    }
+// Méthodes helper pour les statistiques
+private function getMatiereStatistics($classeId, $matiereId, $periodeId)
+{
+    return Bulletin::where('matiere_id', $matiereId)
+        ->where('periode_id', $periodeId)
+        ->whereIn('eleve_id', function ($query) use ($classeId) {
+            $query->select('id')
+                ->from('eleves')
+                ->where('classe_id', $classeId);
+        })
+        ->selectRaw('
+        COUNT(*) as total_eleves,
+        SUM(CASE WHEN statut = true THEN 1 ELSE 0 END) as reussite,
+        SUM(CASE WHEN statut = false THEN 1 ELSE 0 END) as echec,
+        AVG(moyenne) as moyenne_classe,
+        MIN(moyenne) as pire_note,
+        MAX(moyenne) as meilleure_note
+    ')
+        ->first();
+}
 
-    private function getBottomStudents($classeId, $periodeId, $limit = 3)
-    {
-        return Bulletin::with(['eleve.user'])
-            ->where('periode_id', $periodeId)
-            ->whereIn('eleve_id', function ($query) use ($classeId) {
-                $query->select('id')
-                    ->from('eleves')
-                    ->where('classe_id', $classeId);
-            })
-            ->select('eleve_id', DB::raw('AVG(moyenne_periodique) as moyenne'))
-            ->groupBy('eleve_id')
-            ->orderBy('moyenne')
-            ->limit($limit)
-            ->get();
-    }
+private function getTopStudents($classeId, $periodeId, $limit = 3)
+{
+    return Bulletin::with(['eleve.user'])
+        ->where('periode_id', $periodeId)
+        ->whereIn('eleve_id', function ($query) use ($classeId) {
+            $query->select('id')
+                ->from('eleves')
+                ->where('classe_id', $classeId);
+        })
+        ->select('eleve_id', DB::raw('AVG(moyenne_periodique) as moyenne'))
+        ->groupBy('eleve_id')
+        ->orderByDesc('moyenne')
+        ->limit($limit)
+        ->get();
+}
 
-    private function getGlobalStatistics($classeId, $periodeId)
-    {
-        return Bulletin::where('periode_id', $periodeId)
-            ->whereIn('eleve_id', function ($query) use ($classeId) {
-                $query->select('id')
-                    ->from('eleves')
-                    ->where('classe_id', $classeId);
-            })
-            ->selectRaw('
-            COUNT(DISTINCT eleve_id) as total_eleves,
-            AVG(moyenne_periodique) as moyenne_generale,
-            SUM(CASE WHEN moyenne_periodique >= 12 THEN 1 ELSE 0 END) as reussite,
-            SUM(CASE WHEN moyenne_periodique < 12 THEN 1 ELSE 0 END) as echec
-        ')
-            ->first();
-    }
+private function getBottomStudents($classeId, $periodeId, $limit = 3)
+{
+    return Bulletin::with(['eleve.user'])
+        ->where('periode_id', $periodeId)
+        ->whereIn('eleve_id', function ($query) use ($classeId) {
+            $query->select('id')
+                ->from('eleves')
+                ->where('classe_id', $classeId);
+        })
+        ->select('eleve_id', DB::raw('AVG(moyenne_periodique) as moyenne'))
+        ->groupBy('eleve_id')
+        ->orderBy('moyenne')
+        ->limit($limit)
+        ->get();
+}
 
-    private function getSuccessRate($classeId, $matiereId, $periodeId)
-    {
-        $stats = Bulletin::where('matiere_id', $matiereId)
-            ->where('periode_id', $periodeId)
-            ->whereIn('eleve_id', function ($query) use ($classeId) {
-                $query->select('id')
-                    ->from('eleves')
-                    ->where('classe_id', $classeId);
-            })
-            ->selectRaw('
-            COUNT(*) as total,
-            SUM(CASE WHEN statut = 1 THEN 1 ELSE 0 END) as reussite
-        ')
-            ->first();
+private function getGlobalStatistics($classeId, $periodeId)
+{
+    return Bulletin::where('periode_id', $periodeId)
+        ->whereIn('eleve_id', function ($query) use ($classeId) {
+            $query->select('id')
+                ->from('eleves')
+                ->where('classe_id', $classeId);
+        })
+        ->selectRaw('
+        COUNT(DISTINCT eleve_id) as total_eleves,
+        AVG(moyenne_periodique) as moyenne_generale,
+        SUM(CASE WHEN moyenne_periodique >= 12 THEN 1 ELSE 0 END) as reussite,
+        SUM(CASE WHEN moyenne_periodique < 12 THEN 1 ELSE 0 END) as echec
+    ')
+        ->first();
+}
 
-        return $stats->total > 0 ? round(($stats->reussite / $stats->total) * 100, 2) : 0;
-    }
+private function getSuccessRate($classeId, $matiereId, $periodeId)
+{
+    $stats = Bulletin::where('matiere_id', $matiereId)
+        ->where('periode_id', $periodeId)
+        ->whereIn('eleve_id', function ($query) use ($classeId) {
+            $query->select('id')
+                ->from('eleves')
+                ->where('classe_id', $classeId);
+        })
+        ->selectRaw('
+        COUNT(*) as total,
+        SUM(CASE WHEN statut = true THEN 1 ELSE 0 END) as reussite
+    ')
+        ->first();
+
+    return $stats->total > 0 ? round(($stats->reussite / $stats->total) * 100, 2) : 0;
+}
+
 }
