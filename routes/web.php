@@ -22,7 +22,7 @@ Route::get('/healthz', function () {
 
 // Authentification
 Route::get('login', [HomeController::class, 'login'])->name('login');
-Route::post('login', [LoginController::class, 'login']);
+Route::post('connexion', [LoginController::class, 'connexion'])->name('connexion');
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
