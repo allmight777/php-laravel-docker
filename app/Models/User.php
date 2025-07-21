@@ -64,13 +64,11 @@ class User extends Authenticatable
         return $this->hasMany(Affectation::class, 'professeur_id');
     }
 
-    /**
-     * Vérifie si l'utilisateur est admin
-     */
-    public function isAdmin()
-    {
-        return $this->administrateur !== null;
-    }
+    
+ public function isAdmin()
+{
+    return $this->is_admin;  
+}
 
     /**
      * Vérifie si le compte est actif
