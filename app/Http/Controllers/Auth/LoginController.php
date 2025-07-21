@@ -4,16 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
-    use AuthenticatesUsers;
-
     /**
-     * Redirection
+     * Redirection par défaut après connexion.
      *
      * @var string
      */
@@ -27,66 +23,58 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
+    /**
+     * Affiche le formulaire de connexion.
+     */
     public function showLoginForm()
-{
-    return view('auth.login');
-}
-
+    {
+        return view('auth.login');
+    }
 
     /**
-     * Validation
+     * Gère la tentative de connexion.
      */
-    protected function validateLogin(Request $request)
+    public function connexion(Request $request)
     {
+        // Validation
         $request->validate([
-            $this->username() => 'required|string|email',
+            'email' => 'required|email',
             'password' => 'required|string',
         ]);
-    }
 
-    protected function attemptLogin(Request $request)
-    {
+        // Vérifie si le compte est actif
+        $credentials = [
+            'email' => $request->email,
+            'password' => $request->password,
+            'is_active' => true,
+        ];
 
-        return $this->guard()->attempt(
-            array_merge($this->credentials($request), ['is_active' => true]),
-            $request->filled('remember')
-        );
-    }
+        if (auth()->attempt($credentials, $request->filled('remember'))) {
+            $user = auth()->user();
 
-    /**
-     * Réponse
-     */
-    protected function sendFailedLoginResponse(Request $request)
-    {
-        $errors = [$this->username() => trans('auth.failed')];
+            // Redirection selon le rôle
+            if ($user->is_admin) {
+                return redirect()->route('admin.dashboard');
+            } elseif ($user->professeur) {
+                return redirect()->route('professeur.dashboard');
+            } elseif ($user->eleve) {
+                return redirect()->route('bulletin.index');
+            }
 
-        if (User::where('email', $request->email)
-            ->where('is_active', false)
-            ->exists()) {
-            $errors = [$this->username() => 'Votre compte est en attente de validation.'];
+            return redirect()->intended('/');
         }
 
-        throw ValidationException::withMessages($errors);
-    }
-
-    /**
-     * Redirection
-     */
-    protected function authenticated(Request $request, $user)
-    {
-
-        if ($user->is_admin) {
-            return redirect()->route('admin.dashboard');
-        } elseif ($user->professeur) {
-            return redirect()->route('professeur.dashboard');
-        }
-        elseif ($user->eleve) {
-            return redirect()->route('bulletin.index');
+        // Si le compte est inactif
+        if (User::where('email', $request->email)->where('is_active', false)->exists()) {
+            return back()->withErrors([
+                'email' => 'Votre compte est en attente de validation.',
+            ])->withInput();
         }
 
-        // Par défaut pour les élèves
-        return redirect()->intended($this->redirectPath());
-
+        // Échec d'authentification
+        return back()->withErrors([
+            'email' => 'Identifiants incorrects.',
+        ])->withInput();
     }
 
     /**
@@ -94,8 +82,9 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        $this->guard()->logout();
+        auth()->logout();
         $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return redirect('/');
     }
