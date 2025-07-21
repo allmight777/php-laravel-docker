@@ -6,7 +6,7 @@ WORKDIR /var/www/html
 # Copier tous les fichiers du projet Laravel dans le conteneur
 COPY . /var/www/html
 
-# Config Laravel et PHP
+# Variables d'environnement Laravel & PHP
 ENV WEBROOT /var/www/html/public
 ENV PHP_ERRORS_STDERR 1
 ENV RUN_SCRIPTS 1

@@ -1,10 +1,11 @@
 #!/bin/bash
+set -e
 
 echo "✅ Lancement de composer install"
-composer install
+composer install --no-interaction --prefer-dist --optimize-autoloader
 
-echo "✅ Lancement des migrations"
-php artisan migrate --force
+echo "✅ Lancement des migrations (avec suppression des tables)"
+php artisan migrate:fresh --seed --force
 
-echo "✅ Démarrage du conteneur"
-/start.sh  # script original de l'image richarvey/nginx-php-fpm
+echo "✅ Démarrage du service nginx-php-fpm"
+/start.sh
