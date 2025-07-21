@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('eleve_id')->constrained('eleves');
             $table->decimal('total', 5, 2);
             $table->decimal('moyenne', 5, 2);
-            $table->integer('rang')->default(0)->change();
+            $table->integer('rang')->default(0);
             $table->string('periode', 50);
             $table->boolean('statut')->default(false);
             $table->timestamps();
