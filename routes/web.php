@@ -16,17 +16,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('index');
 
 // Authentification
-Route::get('login', [HomeController::class, 'login'])->name('login');
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('login', [LoginController::class, 'login']);
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::get('/healthz', function () {
-    return response()->json(['status' => 'ok'], 200);
-});
-
-
-
-Route::get('register', [HomeController::class, 'register'])->name('register');
+Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('register', [RegisterController::class, 'register']);
 
 Route::middleware('auth')->group(function () {
@@ -143,3 +137,6 @@ Route::middleware('auth')->group(function () {
     });
 
 });
+
+// Auth Laravel
+Auth::routes();
