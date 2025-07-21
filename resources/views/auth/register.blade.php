@@ -31,7 +31,7 @@
                                 enctype="multipart/form-data">
 
                                 @csrf
-                                <input type="hidden" name="user_type" id="user_type" 
+                                <input type="hidden" name="user_type" id="user_type"
                                     value="{{ old('user_type', 'eleve') }}">
 
                                 <!-- Champs Communs -->
@@ -111,7 +111,50 @@
                                     </div>
 
                                     <!-- Champs Étudiant -->
-                                    
+                                    <div id="student-fields"
+                                        style="{{ old('user_type', 'eleve') == 'professeur' ? 'display: none;' : '' }}">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="classe_id" class="form-label">Classe <span
+                                                        class="text-danger">*</span></label>
+                                                <select id="classe_id"
+                                                    class="form-select @error('classe_id') is-invalid @enderror"
+                                                    name="classe_id">
+                                                    <option value="">Sélectionner votre classe</option>
+                                                    @foreach ($classes as $classe)
+                                                        <option value="{{ $classe->id }}"
+                                                            {{ old('classe_id') == $classe->id ? 'selected' : '' }}>
+                                                            {{ $classe->nom }} @if ($classe->serie)
+                                                                - {{ $classe->serie }}
+                                                            @endif
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                @error('classe_id')
+                                                    <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                                @enderror
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label for="annee_academique_id" class="form-label">Année académique <span
+                                                        class="text-danger">*</span></label>
+                                                <select id="annee_academique_id"
+                                                    class="form-select @error('annee_academique_id') is-invalid @enderror"
+                                                    name="annee_academique_id">
+                                                    <option value="">Sélectionner l'année</option>
+                                                    @foreach ($annees as $annee)
+                                                        <option value="{{ $annee->id }}"
+                                                            {{ old('annee_academique_id') == $annee->id ? 'selected' : '' }}>
+                                                            {{ $annee->libelle }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                @error('annee_academique_id')
+                                                    <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <div class="col-md-12">
                                         <label for="photo" class="form-label">Photo de profil</label>
@@ -223,7 +266,104 @@
             const addClassBtn = document.getElementById('add-class-btn');
 
 
-          
+            function updateMatieres(classeSelect) {
+                const classeId = classeSelect.value;
+                const matiereSelect = classeSelect.closest('.class-selection').querySelector('.matiere-select');
+                const matieresContainer = classeSelect.closest('.class-selection').querySelector(
+                    '.matieres-container');
+
+                if (classeId) {
+
+                    matiereSelect.disabled = false;
+
+
+                    matiereSelect.innerHTML = '';
+
+                    if (matieresParClasse[classeId]) {
+                        matieresParClasse[classeId].forEach(matiere => {
+                            const option = document.createElement('option');
+                            option.value = matiere.id;
+                            option.textContent = `${matiere.nom} (${matiere.code})`;
+                            matiereSelect.appendChild(option);
+                        });
+                    }
+
+                    const removeBtn = classeSelect.closest('.class-selection').querySelector('.remove-class-btn');
+                    if (classesContainer.children.length > 1) {
+                        removeBtn.style.display = 'inline-block';
+                    }
+                } else {
+
+                    matiereSelect.disabled = true;
+                    matiereSelect.innerHTML = '<option value="">Sélectionnez d\'abord une classe</option>';
+                }
+            }
+
+
+            classesContainer.addEventListener('change', function(e) {
+                if (e.target.classList.contains('classe-select')) {
+                    updateMatieres(e.target);
+                }
+            });
+
+            addClassBtn.addEventListener('click', function() {
+                const newIndex = classesContainer.children.length;
+                const newClassSelection = document.createElement('div');
+                newClassSelection.className = 'class-selection mb-3 animate__animated animate__fadeIn';
+                newClassSelection.innerHTML = `
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Classe <span class="text-danger">*</span></label>
+                    <select class="form-select classe-select" name="prof_classes[]">
+                        <option value="">Sélectionner une classe</option>
+                        @foreach ($classes as $classe)
+                            <option value="{{ $classe->id }}">
+                                {{ $classe->nom }} @if ($classe->serie) - {{ $classe->serie }} @endif
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Matières <span class="text-danger">*</span></label>
+                    <div class="matieres-container">
+                        <select class="form-select matiere-select" name="prof_matieres[${newIndex}][]" multiple disabled>
+                            <option value="">Sélectionnez d'abord une classe</option>
+                        </select>
+                        <small class="text-muted">Maintenez Ctrl pour sélectionner plusieurs matières</small>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 text-end">
+                <button type="button" class="btn btn-sm btn-danger remove-class-btn">
+                    <i class="fas fa-trash me-1"></i> Supprimer
+                </button>
+            </div>
+        `;
+
+                classesContainer.appendChild(newClassSelection);
+
+                newClassSelection.classList.add('animate__fadeIn');
+            });
+
+            classesContainer.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-class-btn')) {
+                    const classSelection = e.target.closest('.class-selection');
+                    classSelection.classList.remove('animate__fadeIn');
+                    classSelection.classList.add('animate__fadeOut');
+
+                    setTimeout(() => {
+                        classSelection.remove();
+
+                        document.querySelectorAll('.class-selection').forEach((selection,
+                            index) => {
+                            const matiereSelect = selection.querySelector(
+                                '.matiere-select');
+                            matiereSelect.name = `prof_matieres[${index}][]`;
+                        });
+                    }, 300);
+                }
+            });
+
 
             @if (old('user_type') == 'professeur')
                 teacherTab.click();
