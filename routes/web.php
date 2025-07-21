@@ -21,7 +21,7 @@ Route::get('/healthz', function () {
 
 
 // Authentification
-Route::get('login', [HomeController::class, 'index'])->name('login');
+Route::get('login', [HomeController::class, 'login'])->name('login');
 Route::post('login', [LoginController::class, 'login']);
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
