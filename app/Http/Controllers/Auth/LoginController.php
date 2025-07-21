@@ -34,48 +34,52 @@ class LoginController extends Controller
     /**
      * Gère la tentative de connexion.
      */
-    public function connexion(Request $request)
-    {
-        // Validation
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
+ public function connexion(Request $request)
+{
+    // Validation
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required|string',
+    ]);
 
-        // Vérifie si le compte est actif
-        $credentials = [
-            'email' => $request->email,
-            'password' => $request->password,
-            'is_active' => true,
-        ];
+    $credentials = [
+        'email' => $request->email,
+        'password' => $request->password,
+        'is_active' => true,
+    ];
 
-        if (auth()->attempt($credentials, $request->filled('remember'))) {
-            $user = auth()->user();
+    if (auth()->attempt($credentials, $request->filled('remember'))) {
+        $user = auth()->user();
 
-            // Redirection selon le rôle
-            if ($user->is_admin) {
-                return redirect()->route('admin.dashboard');
-            } elseif ($user->professeur) {
-                return redirect()->route('professeur.dashboard');
-            } elseif ($user->eleve) {
-                return redirect()->route('bulletin.index');
-            }
-
-            return redirect()->intended('/');
+        // Redirection selon les rôles (relations)
+        if ($user->administrateur()->exists()) {
+            return redirect()->route('admin.dashboard');
         }
 
-        // Si le compte est inactif
-        if (User::where('email', $request->email)->where('is_active', false)->exists()) {
-            return back()->withErrors([
-                'email' => 'Votre compte est en attente de validation.',
-            ])->withInput();
+        if ($user->professeur()->exists()) {
+            return redirect()->route('professeur.dashboard');
         }
 
-        // Échec d'authentification
+        if ($user->eleve()->exists()) {
+            return redirect()->route('bulletin.index');
+        }
+
+        // Redirection par défaut
+        return redirect()->intended('/');
+    }
+
+    // Si le compte est inactif
+    if (User::where('email', $request->email)->where('is_active', false)->exists()) {
         return back()->withErrors([
-            'email' => 'Identifiants incorrects.',
+            'email' => 'Votre compte est en attente de validation.',
         ])->withInput();
     }
+
+    // Échec d'authentification
+    return back()->withErrors([
+        'email' => 'Identifiants incorrects.',
+    ])->withInput();
+}
 
     /**
      * Déconnexion
